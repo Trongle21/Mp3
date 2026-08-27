@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, Star, ArrowUp, ArrowDown, Users } from "lucide-react";
+import { Crown, Star, ArrowUp, ArrowDown, Users, Pencil } from "lucide-react";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
+import { EditUserModal } from "@/components/admin/EditUserModal";
 import type { User } from "@/interfaces/user.interface";
 
 function RoleBadge({ isAdmin }: { isAdmin: User["isAdmin"] }) {
@@ -41,55 +42,56 @@ function RoleActions({
   currentRole: User["isAdmin"];
   userId: string;
   currentUserId: string;
-  onChange: (role: "normal" | "master" | null) => void;
+  onChange: (role: "normal" | null) => void;
   isUpdating: boolean;
 }) {
   const isSelf = userId === currentUserId;
-  if (isSelf) return <span className="text-caption text-text-muted">—</span>;
+  if (isSelf)
+    return <span className="text-caption text-text-muted">Yourself</span>;
+
+  if (currentRole === "master") {
+    return <span className="text-caption text-text-muted">Cannot change</span>;
+  }
+
+  if (currentRole === "normal") {
+    return (
+      <button
+        onClick={() => onChange(null)}
+        disabled={isUpdating}
+        title="Hạ xuống User"
+        className="flex items-center gap-1 rounded-full bg-bg-highlight px-2 py-1 text-caption font-medium text-text-muted transition-colors hover:bg-danger/20 hover:text-danger disabled:opacity-50"
+      >
+        <ArrowDown className="h-3 w-3" />
+        User
+      </button>
+    );
+  }
 
   return (
-    <div className="flex items-center gap-1">
-      {currentRole !== "normal" && (
-        <button
-          onClick={() => onChange("normal")}
-          disabled={isUpdating}
-          title="Promote to Admin"
-          className="flex items-center gap-1 rounded-full bg-blue-500/20 px-2 py-1 text-caption font-medium text-blue-400 transition-colors hover:bg-blue-500/30 disabled:opacity-50"
-        >
-          <ArrowUp className="h-3 w-3" />
-          Admin
-        </button>
-      )}
-      {currentRole !== "master" && (
-        <button
-          onClick={() => onChange("master")}
-          disabled={isUpdating}
-          title="Promote to Master"
-          className="flex items-center gap-1 rounded-full bg-purple-500/20 px-2 py-1 text-caption font-medium text-purple-400 transition-colors hover:bg-purple-500/30 disabled:opacity-50"
-        >
-          <Crown className="h-3 w-3" />
-          Master
-        </button>
-      )}
-      {currentRole !== null && (
-        <button
-          onClick={() => onChange(null)}
-          disabled={isUpdating}
-          title="Demote to User"
-          className="flex items-center gap-1 rounded-full bg-bg-highlight px-2 py-1 text-caption font-medium text-text-muted transition-colors hover:bg-danger/20 hover:text-danger disabled:opacity-50"
-        >
-          <ArrowDown className="h-3 w-3" />
-          User
-        </button>
-      )}
-    </div>
+    <button
+      onClick={() => onChange("normal")}
+      disabled={isUpdating}
+      title="Nâng lên Admin"
+      className="flex items-center gap-1 rounded-full bg-blue-500/20 px-2 py-1 text-caption font-medium text-blue-400 transition-colors hover:bg-blue-500/30 disabled:opacity-50"
+    >
+      <ArrowUp className="h-3 w-3" />
+      Admin
+    </button>
   );
 }
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
-  const { users, isLoading, updateRole, isUpdating } = useUsers();
+  const {
+    users,
+    isLoading,
+    updateRole,
+    updateUser,
+    isUpdatingRole,
+    isUpdatingUser,
+  } = useUsers();
   const router = useRouter();
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (currentUser && currentUser.isAdmin !== "master") {
@@ -103,16 +105,16 @@ export default function AdminUsersPage() {
     <div className="animate-fade-slide-in pt-4">
       <div className="mb-6 flex items-center gap-3">
         <Users className="h-7 w-7 text-accent" />
-        <h1 className="text-h2">Quản lý người dùng</h1>
+        <h1 className="text-h2">Manage users</h1>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-bg-secondary">
         {/* Table header */}
         <div className="grid grid-cols-[1fr_1fr_120px_180px] gap-4 border-b border-border px-6 py-3 text-caption font-semibold uppercase tracking-wider text-text-muted">
-          <span>Tên</span>
+          <span>Name</span>
           <span>Email</span>
-          <span>Vai trò</span>
-          <span className="text-right">Hành động</span>
+          <span>Role</span>
+          <span className="text-right">Actions</span>
         </div>
 
         {isLoading && (
@@ -133,46 +135,89 @@ export default function AdminUsersPage() {
 
         {!isLoading && users && users.length === 0 && (
           <div className="px-6 py-12 text-center text-text-muted">
-            No users found.
+            No users found
           </div>
         )}
 
         {!isLoading && users && users.length > 0 && (
           <div className="divide-y divide-border">
-            {users.map((user) => (
-              <div
-                key={user._id}
-                className="grid grid-cols-[1fr_1fr_120px_180px] items-center gap-4 px-6 py-4 transition-colors hover:bg-bg-elevated"
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-black">
-                    {user.name?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? "?"}
+            {users
+              .slice()
+              .sort((a, b) => {
+                if (a.isAdmin === "master") return -1;
+                if (b.isAdmin === "master") return 1;
+                return 0;
+              })
+              .map((user) => (
+                <div
+                  key={user._id}
+                  className="grid grid-cols-[1fr_1fr_120px_180px] items-center gap-4 px-6 py-4 transition-colors hover:bg-bg-elevated"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-black">
+                      {user.name?.[0]?.toUpperCase() ??
+                        user.email?.[0]?.toUpperCase() ??
+                        "?"}
+                    </div>
+                    <span className="truncate text-body font-medium text-text-primary">
+                      {user.name || "—"}
+                    </span>
                   </div>
-                  <span className="truncate text-body font-medium text-text-primary">
-                    {user.name || "—"}
+
+                  <span className="truncate text-body text-text-secondary">
+                    {user.email}
                   </span>
+
+                  <RoleBadge isAdmin={user.isAdmin} />
+
+                  <div className="flex items-center justify-end gap-2">
+                    <RoleActions
+                      currentRole={user.isAdmin}
+                      userId={user._id}
+                      currentUserId={currentUser?._id ?? ""}
+                      onChange={(role) =>
+                        updateRole({ userId: user._id, isAdmin: role })
+                      }
+                      isUpdating={isUpdatingRole}
+                    />
+                    {user.isAdmin !== "master" && (
+                      <button
+                        onClick={() => setEditingUser(user)}
+                        title="Sửa thông tin"
+                        className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                <span className="truncate text-body text-text-secondary">
-                  {user.email}
-                </span>
-
-                <RoleBadge isAdmin={user.isAdmin} />
-
-                <div className="flex justify-end">
-                  <RoleActions
-                    currentRole={user.isAdmin}
-                    userId={user._id}
-                    currentUserId={currentUser?._id ?? ""}
-                    onChange={(role) => updateRole({ userId: user._id, isAdmin: role })}
-                    isUpdating={isUpdating}
-                  />
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>
+
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+          onSave={(updated) => {
+            // queryClient will handle cache update via onSuccess
+          }}
+          onSubmit={async (payload) => {
+            await updateUser({
+              userId: payload.userId,
+              name: payload.name,
+              birthdate: payload.birthdate || null,
+              gender: (payload.gender || null) as
+                | "male"
+                | "female"
+                | "other"
+                | null,
+            });
+          }}
+          isSaving={isUpdatingUser}
+        />
+      )}
     </div>
   );
 }

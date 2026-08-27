@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllUsers, updateUserRole } from "@/lib/api-users";
+import { getAllUsers, updateUserRole, updateUser } from "@/lib/api-users";
 import type { User } from "@/interfaces/user.interface";
 import { toast } from "sonner";
 
@@ -15,7 +15,7 @@ export function useUsers() {
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({ userId, isAdmin }: { userId: string; isAdmin: "normal" | "master" | null }) =>
+    mutationFn: ({ userId, isAdmin }: { userId: string; isAdmin: "normal" | null }) =>
       updateUserRole(userId, { isAdmin }),
     onSuccess: (res) => {
       queryClient.setQueryData(["admin", "users"], (old: User[] | undefined) =>
@@ -30,11 +30,28 @@ export function useUsers() {
     },
   });
 
+  const updateUserMutation = useMutation({
+    mutationFn: (payload: { userId: string; name?: string; birthdate?: string | null; gender?: "male" | "female" | "other" | null }) =>
+      updateUser(payload.userId, { name: payload.name, birthdate: payload.birthdate, gender: payload.gender }),
+    onSuccess: (res) => {
+      queryClient.setQueryData(["admin", "users"], (old: User[] | undefined) =>
+        old?.map((u) => (u._id === res.data.data._id ? res.data.data : u))
+      );
+      toast.success("Đã lưu thay đổi");
+    },
+    onError: (err: unknown) => {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      toast.error(axiosErr?.response?.data?.message || "Không thể cập nhật thông tin");
+    },
+  });
+
   return {
     users: data,
     isLoading,
     error,
     updateRole: updateRoleMutation.mutateAsync,
-    isUpdating: updateRoleMutation.isPending,
+    updateUser: updateUserMutation.mutateAsync,
+    isUpdatingRole: updateRoleMutation.isPending,
+    isUpdatingUser: updateUserMutation.isPending,
   };
 }

@@ -16,6 +16,23 @@ body {
   color: #ffffff;
 }
 
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-spin-slow.paused {
+  animation-play-state: paused;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, Play, Heart } from "lucide-react";
 import { usePlayer } from "@/hooks/usePlayer";
@@ -13,7 +12,7 @@ import { useState } from "react";
 import { CoverThumb } from "@/components/shared/CoverThumb";
 
 export default function NowPlayingPage() {
-  const { currentTrack, positionSec, seek } = usePlayer();
+  const { currentTrack, positionSec, seek, isPlaying } = usePlayer();
   const [liked, setLiked] = useState(false);
 
   if (!currentTrack) {
@@ -30,10 +29,9 @@ export default function NowPlayingPage() {
 
   const bgUrl = currentTrack.coverUrl || null;
 
-  console.log(currentTrack, "currentTrack");
-
   return (
     <div className="relative -mx-4 -mt-4 flex min-h-[calc(100vh-160px)] flex-col overflow-hidden pb-8 sm:-mx-6 sm:min-h-[calc(100vh-90px)] sm:pb-12 lg:-mx-8">
+      {/* Blurred background */}
       {bgUrl && (
         <div
           className="absolute inset-0 scale-110 bg-cover bg-center opacity-40 blur-3xl"
@@ -53,28 +51,63 @@ export default function NowPlayingPage() {
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-4 sm:px-8">
-        <div className="relative h-[min(55vw,320px)] w-[min(55vw,320px)] shrink-0 overflow-hidden rounded-lg shadow-2xl sm:h-[min(45vh,500px)] sm:w-[min(45vh,500px)]">
-          {/* {currentTrack.coverUrl ? (
-            <CoverThumb
-              src={currentTrack.coverUrl}
-              title={currentTrack.title}
-              size={40}
-              className="rounded"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-bg-highlight text-text-muted">
-              <CoverThumb
-                src={currentTrack.coverUrl}
-                title={currentTrack.title}
-                className="rounded !w-full !h-full"
-              />
-            </div>
-          )} */}
-          <CoverThumb
-            src={currentTrack.coverUrl}
-            title={currentTrack.title}
-            className="rounded !w-full !h-full"
+        {/* Spinning Disc with Glow */}
+        <div className="relative">
+          {/* Outer glow ring */}
+          <div
+            className="absolute inset-0 rounded-full scale-105 opacity-50"
+            style={{
+              background: bgUrl
+                ? `radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)`
+                : `radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)`,
+              filter: "blur(20px)",
+              transform: "scale(1.1)",
+            }}
           />
+
+          {/* Spinning vinyl disc */}
+          <div
+            className={`relative h-[min(55vw,320px)] w-[min(55vw,320px)] shrink-0 sm:h-[min(45vh,500px)] sm:w-[min(45vh,500px)] ${isPlaying ? "animate-spin-slow" : ""}`}
+            style={{ animationDuration: "20s" }}
+          >
+            {/* Vinyl base */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-2xl">
+              {/* Vinyl grooves */}
+              <div className="absolute inset-4 rounded-full overflow-hidden opacity-20">
+                <div className="absolute inset-0 rounded-full border border-gray-600" />
+                <div className="absolute inset-2 rounded-full border border-gray-600" />
+                <div className="absolute inset-[6px] rounded-full border border-gray-600" />
+                <div className="absolute inset-[10px] rounded-full border border-gray-600" />
+                <div className="absolute inset-[14px] rounded-full border border-gray-600" />
+                <div className="absolute inset-[18px] rounded-full border border-gray-600" />
+              </div>
+
+              {/* Reflective highlight */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/10 via-transparent to-transparent" />
+
+              {/* Center hole with cover */}
+              <div className="absolute inset-[22%] rounded-full overflow-hidden shadow-inner ring-1 ring-white/10">
+                <CoverThumb
+                  src={currentTrack.coverUrl}
+                  title={currentTrack.title}
+                  className="!w-full !h-full"
+                  fill
+                />
+              </div>
+
+              {/* Center dot */}
+              <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg" />
+            </div>
+          </div>
+
+          {/* Pause indicator overlay */}
+          {!isPlaying && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
+                <Play className="ml-1 h-6 w-6 fill-white text-white" />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 flex w-full items-start justify-between">

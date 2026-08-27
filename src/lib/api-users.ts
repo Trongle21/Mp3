@@ -6,5 +6,10 @@ export const getAllUsers = () => api.get<ApiSuccess<User[]>>("/users");
 
 export const updateUserRole = (
   userId: string,
-  body: { isAdmin: "normal" | "master" | null }
+  body: { isAdmin: "normal" | null }
 ) => api.patch<ApiSuccess<User>>(`/users/${userId}/role`, body);
+
+export const updateUser = (
+  userId: string,
+  body: { name?: string; birthdate?: string | null; gender?: "male" | "female" | "other" | null }
+) => api.patch<ApiSuccess<User>>(`/users/${userId}`, body);

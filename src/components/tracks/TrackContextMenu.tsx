@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Trash2, ListPlus } from "lucide-react";
+import { Pencil, Trash2, ListPlus, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import type { Track } from "@/interfaces/track.interface";
 import { useDeleteTrack } from "@/hooks/useTracks";
 import { useGroups, useAddTrackToGroup } from "@/hooks/useGroups";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TrackContextMenuProps {
   track: Track;
@@ -16,10 +17,19 @@ interface TrackContextMenuProps {
   onEdit: () => void;
 }
 
-export function TrackContextMenu({ track, x, y, onClose, onEdit }: TrackContextMenuProps) {
+export function TrackContextMenu({
+  track,
+  x,
+  y,
+  onClose,
+  onEdit,
+}: TrackContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [showGroups, setShowGroups] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+
+  const { user } = useAuth();
+  const isAdmin = user?.isAdmin === "master" || user?.isAdmin === "normal";
 
   const { data: groups } = useGroups();
   const deleteTrack = useDeleteTrack();
@@ -44,26 +54,38 @@ export function TrackContextMenu({ track, x, y, onClose, onEdit }: TrackContextM
         style={menuStyle}
         className="fixed z-30 w-52 rounded-lg border border-border bg-bg-elevated py-1 shadow-xl animate-fade-slide-in"
       >
-        {!showGroups && (
+        {!showGroups ? (
           <>
-            <MenuItem icon={Pencil} label="Edit" onClick={onEdit} />
-            <MenuItem icon={ListPlus} label="Add to group" onClick={() => setShowGroups(true)} />
+            {isAdmin && (
+              <>
+                <MenuItem icon={Pencil} label="Edit" onClick={onEdit} />
+                <MenuItem
+                  icon={Trash2}
+                  label="Delete"
+                  danger
+                  onClick={() => setShowDelete(true)}
+                />
+              </>
+            )}
             <MenuItem
-              icon={Trash2}
-              label="Delete"
-              danger
-              onClick={() => {
-                setShowDelete(true);
-                onClose();
-              }}
+              icon={ListPlus}
+              label="Add to group"
+              onClick={() => setShowGroups(true)}
             />
           </>
-        )}
-
-        {showGroups && (
+        ) : (
           <div className="max-h-48 overflow-y-auto">
+            <button
+              onClick={() => setShowGroups(false)}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-caption text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
             {(groups ?? []).length === 0 && (
-              <p className="px-3 py-2 text-caption text-text-muted">No groups yet</p>
+              <p className="px-3 py-2 text-caption text-text-muted">
+                No groups yet
+              </p>
             )}
             {(groups ?? []).map((group) => (
               <AddToGroupItem
@@ -83,11 +105,12 @@ export function TrackContextMenu({ track, x, y, onClose, onEdit }: TrackContextM
         onOpenChange={setShowDelete}
         title="Delete track"
         description={`"${track.title}" will be permanently removed from your library.`}
-        confirmLabel="Delete"
+        confirmLabel={deleteTrack.isPending ? "Deleting..." : "Delete"}
         onConfirm={() => {
           deleteTrack.mutate(track._id, {
             onSuccess: () => toast.success("Track deleted"),
-            onError: () => toast.error("Couldn't delete track"),
+            onError: (err: Error) =>
+              toast.error(`Couldn't delete track: ${err.message}`),
           });
         }}
       />

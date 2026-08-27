@@ -14,35 +14,38 @@ export function ResumeBar() {
 
   return (
     <div
-      className="fixed bottom-[81px] sm:bottom-[91px] left-0 right-0 z-30 border-t border-bg-highlight bg-bg-elevated/95 backdrop-blur md:left-sidebar"
+      className="fixed bottom-[72px] sm:bottom-[82px] left-0 right-0 z-30 border-t border-border/50 bg-bg-secondary/95 backdrop-blur-md md:left-sidebar"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-2 sm:gap-4 sm:px-6 sm:py-3">
-        <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-bg-highlight">
-          <div className="flex h-full w-full items-center justify-center text-text-muted">
-            <Play className="h-5 w-5" />
-          </div>
+      <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-2">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-bg-highlight">
+          <Play className="h-4 w-4 text-text-muted" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-caption text-text-primary">Resume &ldquo;{track.title}&rdquo;?</p>
-          <p className="truncate text-caption text-text-muted">
+          <p className="truncate text-xs text-text-primary">
+            Resume{" "}
+            <span className="text-text-muted">&ldquo;{track.title}&rdquo;</span>
+          </p>
+          <p className="truncate text-xs text-text-muted">
             {track.artist}
-            {positionSec > 0 ? ` · at ${positionSec}s` : ""}
+            {positionSec > 0
+              ? ` · ${Math.floor(positionSec / 60)}:${String(positionSec % 60).padStart(2, "0")}`
+              : ""}
           </p>
         </div>
         <button
           onClick={() => accept()}
-          className="flex shrink-0 items-center gap-2 rounded-full bg-accent px-3 py-1.5 text-caption font-medium text-black transition-transform hover:scale-105 hover:bg-accent-hover sm:px-4 sm:py-2"
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-black transition-transform hover:scale-105"
         >
-          <Play className="h-3.5 w-3.5 fill-black sm:h-4 sm:w-4" />
-          <span className="hidden sm:inline">Resume</span>
+          <Play className="h-3 w-3 fill-black" />
+          Resume
         </button>
         <button
           onClick={() => dismiss()}
           aria-label="Dismiss"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
         >
-          <X className="h-4 w-4" />
+          <X className="h-3.5 w-3.5" />
         </button>
       </div>
     </div>
