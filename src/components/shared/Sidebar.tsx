@@ -3,7 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { Library, ListMusic, Search, LogOut, Music2, X, User, Shield, Upload, ListX, FolderEdit } from "lucide-react";
+import {
+  Library,
+  ListMusic,
+  Search,
+  LogOut,
+  Music2,
+  X,
+  User,
+  Shield,
+  Upload,
+  FolderEdit,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useSidebarStore } from "@/stores/sidebar.store";
@@ -43,7 +55,7 @@ export function Sidebar() {
         aria-hidden
         className={cn(
           "fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity lg:hidden",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
+          open ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />
 
@@ -53,7 +65,7 @@ export function Sidebar() {
           "fixed inset-y-0 left-0 z-40 flex w-sidebar max-w-[85vw] flex-col border-r border-border bg-bg-secondary transition-transform duration-200 ease-out",
           // Drawer on mobile/tablet; sticky rail from lg up.
           open ? "translate-x-0" : "-translate-x-full",
-          "lg:translate-x-0"
+          "lg:translate-x-0",
         )}
       >
         <div className="flex items-center justify-between px-6 py-6">
@@ -81,7 +93,7 @@ export function Sidebar() {
                   "flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors",
                   isActive
                     ? "bg-bg-highlight text-text-primary"
-                    : "text-text-secondary hover:text-text-primary"
+                    : "text-text-secondary hover:text-text-primary",
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -97,39 +109,25 @@ export function Sidebar() {
               "flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors",
               pathname?.startsWith("/profile")
                 ? "bg-bg-highlight text-text-primary"
-                : "text-text-secondary hover:text-text-primary"
+                : "text-text-secondary hover:text-text-primary",
             )}
           >
             <User className="h-5 w-5" />
             Profile
           </Link>
 
-          {/* Admin section */}
-          {user?.isAdmin && (
+          {/* Master-only section */}
+          {user?.isAdmin === "master" && (
             <div className="pt-3">
               <div className="mb-1 px-3 text-caption font-semibold uppercase tracking-wider text-text-muted">
-                Admin
+                Master
               </div>
               <Link
-                href="/admin/tracks"
+                href="/admin/users"
                 className="flex items-center gap-3 rounded-md px-3 py-2 text-body font-medium text-text-secondary transition-colors hover:text-text-primary"
               >
-                <Upload className="h-5 w-5" />
-                Upload tracks
-              </Link>
-              <Link
-                href="/admin/groups"
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-body font-medium text-text-secondary transition-colors hover:text-text-primary"
-              >
-                <FolderEdit className="h-5 w-5" />
-                Manage groups
-              </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-body font-medium text-text-secondary transition-colors hover:text-text-primary"
-              >
-                <Shield className="h-5 w-5" />
-                Dashboard
+                <Users className="h-5 w-5" />
+                User
               </Link>
             </div>
           )}
@@ -138,7 +136,9 @@ export function Sidebar() {
         <div className="m-3 mt-0">
           <div className="flex items-center gap-3 rounded-lg bg-bg-elevated p-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-white">
-              {user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?"}
+              {user?.name?.[0]?.toUpperCase() ??
+                user?.email?.[0]?.toUpperCase() ??
+                "?"}
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-body font-medium text-text-primary">

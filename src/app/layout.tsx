@@ -14,7 +14,11 @@ export const metadata: Metadata = {
   description: "Your library, your groups, your sound.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-bg-primary text-text-primary antialiased">

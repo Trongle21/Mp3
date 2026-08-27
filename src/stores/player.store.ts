@@ -83,7 +83,8 @@ function emitPlayhead() {
   const t = audioEl.currentTime || 0;
   const d = audioEl.duration || 0;
   // Only notify if time actually advanced by >= 1 frame worth to avoid spam.
-  if (Math.abs(t - lastDispatchedTime) < 0.016 && playheadListeners.size <= 1) return;
+  if (Math.abs(t - lastDispatchedTime) < 0.016 && playheadListeners.size <= 1)
+    return;
   lastDispatchedTime = t;
   playheadListeners.forEach((fn) => fn(t, d));
 }
@@ -243,7 +244,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const targetPosition =
       backendState?.currentTrack && backendState.positionSec > 0
         ? backendState.positionSec
-        : cached?.positionSec ?? 0;
+        : (cached?.positionSec ?? 0);
 
     if (targetTrack && targetPosition > 0) {
       const resume = { track: targetTrack, positionSec: targetPosition };
@@ -267,7 +268,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const { track, positionSec } = resume;
     set({
       pendingResume: null,
-      state: { ...get().state, currentTrack: track, positionSec, isPlaying: true },
+      state: {
+        ...get().state,
+        currentTrack: track,
+        positionSec,
+        isPlaying: true,
+      },
       loadingTrackId: track._id,
     });
     try {
@@ -314,7 +320,11 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
           positionSec: startAt,
         },
       });
-      get().saveState({ currentTrack: targetTrack, isPlaying: true, positionSec: startAt });
+      get().saveState({
+        currentTrack: targetTrack,
+        isPlaying: true,
+        positionSec: startAt,
+      });
       persistSessionThrottled(targetTrack, startAt);
       startRafLoop();
     };
@@ -341,7 +351,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         if (current.state.isPlaying && audioEl) {
           const pos = audioEl.currentTime || 0;
           get().saveState({ positionSec: pos });
-          if (current.state.currentTrack) persistSessionThrottled(current.state.currentTrack, pos);
+          if (current.state.currentTrack)
+            persistSessionThrottled(current.state.currentTrack, pos);
         }
       }, SYNC_INTERVAL_MS);
       set({ syncIntervalId: id });
@@ -385,7 +396,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   next: () => {
     const { state } = get();
     if (state.queue.length === 0) return;
-    const currentIndex = state.queue.findIndex((t) => t._id === state.currentTrack?._id);
+    const currentIndex = state.queue.findIndex(
+      (t) => t._id === state.currentTrack?._id,
+    );
     let nextIndex = currentIndex + 1;
 
     if (state.shuffle) {
@@ -405,7 +418,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       return;
     }
     const { state } = get();
-    const currentIndex = state.queue.findIndex((t) => t._id === state.currentTrack?._id);
+    const currentIndex = state.queue.findIndex(
+      (t) => t._id === state.currentTrack?._id,
+    );
     const prevIndex = currentIndex - 1;
     if (prevIndex >= 0) get().play(state.queue[prevIndex]);
     else get().seek(0);

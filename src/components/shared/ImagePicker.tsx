@@ -3,7 +3,12 @@
 import { useRef, useState, useEffect } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
-import { acceptImageFile, formatFileSize, imageValidationMessage, validateImageFile } from "@/lib/image-upload";
+import {
+  acceptImageFile,
+  formatFileSize,
+  imageValidationMessage,
+  validateImageFile,
+} from "@/lib/image-upload";
 
 interface ImagePickerProps {
   /** Currently selected file (controlled). */
@@ -139,7 +144,9 @@ export function ImagePicker({
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-body text-text-primary">{file.name}</p>
-            <p className="text-caption text-text-muted">{formatFileSize(file.size)}</p>
+            <p className="text-caption text-text-muted">
+              {formatFileSize(file.size)}
+            </p>
           </div>
           <button
             type="button"

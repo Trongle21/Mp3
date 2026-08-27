@@ -15,39 +15,20 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body
-        style={{
-          minHeight: "100vh",
-          margin: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#0b0b0b",
-          color: "#fff",
-          fontFamily: "system-ui, sans-serif",
-          padding: 16,
-        }}
-      >
-        <div style={{ maxWidth: 420, textAlign: "center" }}>
-          <h1 style={{ fontSize: 24, marginBottom: 8 }}>Something went wrong</h1>
-          <p style={{ color: "#aaa", marginBottom: 16 }}>
+      <body className="min-h-screen m-0 flex items-center justify-center bg-[#0b0b0b] text-white font-sans p-4">
+        <div className="max-w-[420px] text-center">
+          <h1 className="text-2xl mb-2">Something went wrong</h1>
+          <p className="text-gray-400 mb-4">
             An unexpected error occurred. Please try again.
           </p>
           {error.digest && (
-            <p style={{ color: "#666", fontSize: 12, marginBottom: 16 }}>
+            <p className="text-gray-600 text-xs mb-4">
               Error ID: {error.digest}
             </p>
           )}
           <button
             onClick={reset}
-            style={{
-              padding: "10px 20px",
-              background: "#1a1a1a",
-              color: "#fff",
-              border: "1px solid #333",
-              borderRadius: 8,
-              cursor: "pointer",
-            }}
+            className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#333] rounded-lg cursor-pointer hover:bg-[#222] transition-colors"
           >
             Try again
           </button>
