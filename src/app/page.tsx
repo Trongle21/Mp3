@@ -10,7 +10,7 @@ export default function RootPage() {
 
   useEffect(() => {
     if (isInitializing) return;
-    router.replace(isAuthenticated ? "/library" : "/login");
+    router.replace(isAuthenticated ? "/login" : "/library");
   }, [isAuthenticated, isInitializing, router]);
 
   return (

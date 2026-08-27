@@ -17,7 +17,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isInitializing && !isAuthenticated) {
-      router.replace("/login");
+      router.replace("/auth-required");
     }
   }, [isInitializing, isAuthenticated, router]);
 

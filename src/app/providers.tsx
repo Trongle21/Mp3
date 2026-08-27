@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
+import { useAuthStore } from "@/stores/auth.store";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -16,6 +17,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       })
   );
+
+  const loadFromStorage = useAuthStore((s) => s.loadFromStorage);
+
+  useEffect(() => {
+    loadFromStorage();
+  }, [loadFromStorage]);
 
   return (
     <QueryClientProvider client={queryClient}>
