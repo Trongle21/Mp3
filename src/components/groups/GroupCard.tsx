@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Play, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Group } from "@/interfaces/group.interface";
-import { coverUrl } from "@/lib/utils";
+import { coverUrl, coverInitial } from "@/lib/utils";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useDeleteGroupInline } from "@/hooks/useGroups";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -25,7 +25,7 @@ export function GroupCard({ group }: { group: Group }) {
     if (covers?.length === 0 && group?.tracks?.length === 0) return;
     const tracks = group?.tracks?.map((t) => t.track);
     setQueue(tracks);
-    play(tracks[0]);
+    play(tracks?.[0]);
   };
 
   return (
@@ -44,13 +44,19 @@ export function GroupCard({ group }: { group: Group }) {
                       className="object-cover"
                     />
                   ) : (
-                    <div className="h-full w-full bg-bg-highlight" />
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated text-text-muted">
+                      <span className="text-2xl font-semibold text-text-secondary">
+                        {coverInitial(track?.title)}
+                      </span>
+                    </div>
                   )}
                 </div>
               ))
             ) : (
-              <div className="col-span-2 row-span-2 flex items-center justify-center text-text-muted">
-                No tracks
+              <div className="col-span-2 row-span-2 flex items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated text-text-muted">
+                <span className="text-3xl font-semibold text-text-secondary">
+                  {coverInitial(group?.name)}
+                </span>
               </div>
             )}
           </div>

@@ -18,3 +18,17 @@ export function coverUrl(coverKey: string): string {
   const base = process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? "";
   return `${base}/${coverKey}`;
 }
+
+/**
+ * First non-whitespace character of a track/group title, uppercased.
+ * Falls back to "?" for empty / non-string input.
+ * Used as the placeholder glyph when no cover artwork is available.
+ */
+export function coverInitial(title: string | null | undefined): string {
+  if (!title) return "?";
+  const trimmed = title.trim();
+  if (!trimmed) return "?";
+  // Code-point aware so combining marks / surrogate pairs aren't split.
+  const first = Array.from(trimmed)[0] ?? "";
+  return first.toUpperCase() || "?";
+}

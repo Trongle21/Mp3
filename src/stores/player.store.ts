@@ -11,8 +11,11 @@ interface PlayerStore {
   syncIntervalId: ReturnType<typeof setInterval> | null;
   loadingTrackId: string | null;
   lastSyncedPosition: number;
+  pendingResume: { track: Track; positionSec: number } | null;
 
   init: () => Promise<void>;
+  acceptResume: () => Promise<void>;
+  dismissResume: () => void;
 
   play: (track?: Track) => void;
   pause: () => void;
@@ -118,7 +121,68 @@ export function getCurrentPositionSec(): number {
   return audioEl?.currentTime ?? 0;
 }
 
-async function loadAndPlay(track: Track, startAt: number) {
+// -----------------------------------------------------------------------------
+// Local persistence (so F5 / route changes don't lose the playhead).
+// -----------------------------------------------------------------------------
+const LS_KEY = "player.lastSession.v1";
+const LS_WRITE_THROTTLE_MS = 1500;
+let lsWriteTimer: ReturnType<typeof setTimeout> | null = null;
+let lsDirtyPosition = 0;
+
+interface PersistedSession {
+  track: Track;
+  positionSec: number;
+  updatedAt: string;
+}
+
+function isBrowser() {
+  return typeof window !== "undefined" && typeof localStorage !== "undefined";
+}
+
+function persistSessionThrottled(track: Track, positionSec: number) {
+  if (!isBrowser()) return;
+  lsDirtyPosition = positionSec;
+  if (lsWriteTimer) return;
+  lsWriteTimer = setTimeout(() => {
+    lsWriteTimer = null;
+    const pos = lsDirtyPosition;
+    lsDirtyPosition = 0;
+    const payload: PersistedSession = {
+      track,
+      positionSec: pos,
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(payload));
+    } catch {
+      // Quota or private mode -- non-fatal.
+    }
+  }, LS_WRITE_THROTTLE_MS);
+}
+
+function readPersistedSession(): PersistedSession | null {
+  if (!isBrowser()) return null;
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedSession;
+    if (!parsed?.track?._id) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function clearPersistedSession() {
+  if (!isBrowser()) return;
+  try {
+    localStorage.removeItem(LS_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+async function loadAndPlay(track: Track, startAt: number, autoPlay = true) {
   const audio = getAudioElement();
   audio.pause();
 
@@ -131,6 +195,7 @@ async function loadAndPlay(track: Track, startAt: number) {
   audio.src = currentObjectUrl;
 
   audio.currentTime = startAt;
+  if (!autoPlay) return;
   try {
     await audio.play();
   } catch (err) {
@@ -138,25 +203,103 @@ async function loadAndPlay(track: Track, startAt: number) {
   }
 }
 
+async function preloadOnly(track: Track, startAt: number) {
+  await loadAndPlay(track, startAt, false);
+}
+
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
   state: emptyState,
   syncIntervalId: null,
   loadingTrackId: null,
   lastSyncedPosition: -1,
+  pendingResume: null,
 
   init: async () => {
+    // 1. Pull the local cache first so the UI has something to show instantly.
+    const cached = readPersistedSession();
+    if (cached) {
+      set({
+        state: {
+          ...emptyState,
+          currentTrack: cached.track,
+          positionSec: cached.positionSec,
+        },
+      });
+    }
+
+    // 2. Pull the authoritative state from the backend.
+    let backendState: PlayerState | null = null;
     try {
       const { data } = await playerApi.getPlayerState();
-      set({ state: data.data });
+      backendState = data.data;
+      if (backendState) set({ state: backendState });
     } catch {
-      // No saved state yet (or not authenticated) -- fall back to empty state.
+      // Stay with the cached (or empty) state.
     }
+
+    // 3. If there is something to resume, preload the audio silently and surface
+    // a Resume button so the user decides when playback actually starts.
+    const targetTrack = backendState?.currentTrack ?? cached?.track ?? null;
+    const targetPosition =
+      backendState?.currentTrack && backendState.positionSec > 0
+        ? backendState.positionSec
+        : cached?.positionSec ?? 0;
+
+    if (targetTrack && targetPosition > 0) {
+      const resume = { track: targetTrack, positionSec: targetPosition };
+      set({ pendingResume: resume });
+      try {
+        await preloadOnly(targetTrack, targetPosition);
+      } catch (err) {
+        console.error("Preload on init failed:", err);
+        set({ pendingResume: null });
+      }
+    } else if (targetTrack) {
+      // No saved position worth resuming -- still surface a "Resume" so the
+      // track can be played without an extra click.
+      set({ pendingResume: { track: targetTrack, positionSec: 0 } });
+    }
+  },
+
+  acceptResume: async () => {
+    const resume = get().pendingResume;
+    if (!resume) return;
+    const { track, positionSec } = resume;
+    set({
+      pendingResume: null,
+      state: { ...get().state, currentTrack: track, positionSec, isPlaying: true },
+      loadingTrackId: track._id,
+    });
+    try {
+      if (audioEl && audioEl.src) {
+        audioEl.currentTime = positionSec;
+        await audioEl.play();
+      } else {
+        await loadAndPlay(track, positionSec, true);
+      }
+    } catch (err) {
+      console.error("Resume playback failed:", err);
+    } finally {
+      set({ loadingTrackId: null });
+      startRafLoop();
+      get().saveState({ currentTrack: track, isPlaying: true, positionSec });
+      persistSessionThrottled(track, positionSec);
+    }
+  },
+
+  dismissResume: () => {
+    set({ pendingResume: null });
   },
 
   play: (track) => {
     const { state } = get();
     const targetTrack = track ?? state.currentTrack;
     if (!targetTrack) return;
+
+    // User explicitly clicked play -> no longer needs a Resume prompt.
+    if (get().pendingResume?.track._id === targetTrack._id) {
+      set({ pendingResume: null });
+    }
 
     const isNewTrack = track && track._id !== state.currentTrack?._id;
     set({ loadingTrackId: targetTrack._id });
@@ -172,6 +315,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         },
       });
       get().saveState({ currentTrack: targetTrack, isPlaying: true, positionSec: startAt });
+      persistSessionThrottled(targetTrack, startAt);
       startRafLoop();
     };
 
@@ -195,7 +339,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       const id = setInterval(() => {
         const current = get();
         if (current.state.isPlaying && audioEl) {
-          get().saveState({ positionSec: audioEl.currentTime || 0 });
+          const pos = audioEl.currentTime || 0;
+          get().saveState({ positionSec: pos });
+          if (current.state.currentTrack) persistSessionThrottled(current.state.currentTrack, pos);
         }
       }, SYNC_INTERVAL_MS);
       set({ syncIntervalId: id });
@@ -205,8 +351,13 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   pause: () => {
     audioEl?.pause();
     stopRafLoop();
-    set((s) => ({ state: { ...s.state, isPlaying: false } }));
+    const { state } = get();
+    set({ state: { ...state, isPlaying: false } });
     get().saveState({ isPlaying: false });
+    if (state.currentTrack) {
+      const pos = audioEl?.currentTime ?? state.positionSec;
+      persistSessionThrottled(state.currentTrack, pos);
+    }
   },
 
   toggle: () => {
@@ -221,6 +372,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     }
     set((s) => ({ state: { ...s.state, positionSec } }));
     get().saveState({ positionSec });
+    const currentTrack = get().state.currentTrack;
+    if (currentTrack) persistSessionThrottled(currentTrack, positionSec);
   },
 
   setVolume: (volume) => {

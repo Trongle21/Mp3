@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { GripVertical, Play, Pause, X } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { GroupTrackItem } from "@/interfaces/group.interface";
-import { coverUrl, formatDuration } from "@/lib/utils";
+import { formatDuration } from "@/lib/utils";
+import { CoverThumb } from "@/components/shared/CoverThumb";
 
 interface DraggableTrackRowProps {
   item: GroupTrackItem;
@@ -16,8 +16,22 @@ interface DraggableTrackRowProps {
   onRemove: () => void;
 }
 
-export function DraggableTrackRow({ item, index, isActive, isPlaying, onPlay, onRemove }: DraggableTrackRowProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+export function DraggableTrackRow({
+  item,
+  index,
+  isActive,
+  isPlaying,
+  onPlay,
+  onRemove,
+}: DraggableTrackRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: item.track._id,
   });
 
@@ -42,30 +56,47 @@ export function DraggableTrackRow({ item, index, isActive, isPlaying, onPlay, on
         <GripVertical className="h-4 w-4" />
       </button>
 
-      <button onClick={onPlay} aria-label={isActive && isPlaying ? "Pause" : "Play"} className="text-text-secondary">
+      <button
+        onClick={onPlay}
+        aria-label={isActive && isPlaying ? "Pause" : "Play"}
+        className="text-text-secondary"
+      >
         <span className="group-hover:hidden">
-          <span className={isActive ? "text-accent" : "text-text-muted"}>{index + 1}</span>
+          <span className={isActive ? "text-accent" : "text-text-muted"}>
+            {index + 1}
+          </span>
         </span>
         <span className="hidden group-hover:block text-text-primary">
-          {isActive && isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          {isActive && isPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4" />
+          )}
         </span>
       </button>
 
       <div className="flex min-w-0 items-center gap-3">
-        {item.track.coverKey ? (
-          <Image src={coverUrl(item.track.coverKey)} alt={item.track.title} width={40} height={40} className="rounded" />
-        ) : (
-          <div className="h-10 w-10 shrink-0 rounded bg-bg-highlight" />
-        )}
+        <CoverThumb
+          coverKey={item.track.coverKey}
+          title={item.track.title}
+          size={40}
+          className="rounded"
+        />
         <div className="min-w-0">
-          <p className={`truncate font-medium ${isActive ? "text-accent" : "text-text-primary"}`}>
+          <p
+            className={`truncate font-medium ${isActive ? "text-accent" : "text-text-primary"}`}
+          >
             {item.track.title}
           </p>
-          <p className="truncate text-caption text-text-secondary">{item.track.artist}</p>
+          <p className="truncate text-caption text-text-secondary">
+            {item.track.artist}
+          </p>
         </div>
       </div>
 
-      <p className="text-caption text-text-secondary">{formatDuration(item.track.durationSec)}</p>
+      <p className="text-caption text-text-secondary">
+        {formatDuration(item.track.durationSec)}
+      </p>
 
       <button
         onClick={onRemove}

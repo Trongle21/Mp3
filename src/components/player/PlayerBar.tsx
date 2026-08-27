@@ -13,6 +13,7 @@ import { QueuePanel } from "./QueuePanel";
 import { PlayerControls } from "./PlayerControls";
 import { ShuffleButton } from "./ShuffleButton";
 import { RepeatModeButton } from "./RepeatModeButton";
+import { CoverThumb } from "../shared/CoverThumb";
 
 export function PlayerBar() {
   const { currentTrack, positionSec, seek } = usePlayer();
@@ -38,7 +39,12 @@ export function PlayerBar() {
                     className="rounded"
                   />
                 ) : (
-                  <div className="h-12 w-12 rounded bg-bg-highlight" />
+                  <CoverThumb
+                    coverKey={currentTrack.coverKey}
+                    title={currentTrack.title}
+                    size={40}
+                    className="rounded"
+                  />
                 )}
               </Link>
               <div className="min-w-0">
