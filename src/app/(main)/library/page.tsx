@@ -10,6 +10,7 @@ import { useTracks } from "@/hooks/useTracks";
 import { TrackList } from "@/components/tracks/TrackList";
 import { UploadModal } from "@/components/tracks/UploadModal";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useAuth } from "@/hooks/useAuth";
 
 type SortOption = "recent" | "title_asc" | "artist_asc";
 
@@ -20,6 +21,7 @@ const sortLabels: Record<SortOption, string> = {
 };
 
 export default function LibraryPage() {
+  const { user } = useAuth();
   const [uploadOpen, setUploadOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("recent");
@@ -83,7 +85,7 @@ export default function LibraryPage() {
         />
       )}
 
-      {!isLoading && tracks.length > 0 && <TrackList tracks={tracks} />}
+      {!isLoading && tracks.length > 0 && <TrackList tracks={tracks} isAdmin={!!user?.isAdmin} />}
 
       <UploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
     </div>

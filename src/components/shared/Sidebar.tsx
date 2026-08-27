@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { Library, ListMusic, Search, LogOut, Music2, X } from "lucide-react";
+import { Library, ListMusic, Search, LogOut, Music2, X, User, Shield, Upload, ListX, FolderEdit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useSidebarStore } from "@/stores/sidebar.store";
@@ -89,6 +89,50 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          {/* Profile link */}
+          <Link
+            href="/profile"
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors",
+              pathname?.startsWith("/profile")
+                ? "bg-bg-highlight text-text-primary"
+                : "text-text-secondary hover:text-text-primary"
+            )}
+          >
+            <User className="h-5 w-5" />
+            Profile
+          </Link>
+
+          {/* Admin section */}
+          {user?.isAdmin && (
+            <div className="pt-3">
+              <div className="mb-1 px-3 text-caption font-semibold uppercase tracking-wider text-text-muted">
+                Admin
+              </div>
+              <Link
+                href="/admin/tracks"
+                className="flex items-center gap-3 rounded-md px-3 py-2 text-body font-medium text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <Upload className="h-5 w-5" />
+                Upload tracks
+              </Link>
+              <Link
+                href="/admin/groups"
+                className="flex items-center gap-3 rounded-md px-3 py-2 text-body font-medium text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <FolderEdit className="h-5 w-5" />
+                Manage groups
+              </Link>
+              <Link
+                href="/admin"
+                className="flex items-center gap-3 rounded-md px-3 py-2 text-body font-medium text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <Shield className="h-5 w-5" />
+                Dashboard
+              </Link>
+            </div>
+          )}
         </nav>
 
         <div className="m-3 mt-0">

@@ -12,7 +12,7 @@ import { useDeleteGroupInline } from "@/hooks/useGroups";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { RenameGroupDialog } from "./RenameGroupDialog";
 
-export function GroupCard({ group }: { group: Group }) {
+export function GroupCard({ group, isAdmin }: { group: Group; isAdmin?: boolean }) {
   const { setQueue, play } = usePlayer();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -102,7 +102,7 @@ export function GroupCard({ group }: { group: Group }) {
           <MoreHorizontal className="h-4 w-4" />
         </button>
 
-        {menuOpen && (
+        {isAdmin && menuOpen && (
           <div className="absolute right-3 top-11 z-10 w-40 rounded-lg border border-border bg-bg-elevated py-1 shadow-xl">
             <button
               onClick={() => {

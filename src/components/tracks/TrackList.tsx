@@ -7,7 +7,15 @@ import { TrackContextMenu } from "./TrackContextMenu";
 import { EditTrackDialog } from "./EditTrackDialog";
 import { usePlayer } from "@/hooks/usePlayer";
 
-export function TrackList({ tracks }: { tracks: Track[] }) {
+export function TrackList({
+  tracks,
+  isAdmin,
+  onCoverUpload,
+}: {
+  tracks: Track[];
+  isAdmin?: boolean;
+  onCoverUpload?: (track: Track, file: File) => Promise<void>;
+}) {
   const { currentTrack, isPlaying, play, toggle, setQueue } = usePlayer();
   const [menuFor, setMenuFor] = useState<{ track: Track; x: number; y: number } | null>(null);
   const [editTrack, setEditTrack] = useState<Track | null>(null);
@@ -29,7 +37,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
   return (
     <div onContextMenu={(e) => e.preventDefault()}>
       {/* Desktop header: full columns */}
-      <div className="hidden grid-cols-[32px_1fr_1fr_80px_32px] gap-4 border-b border-border px-3 pb-2 text-caption text-text-muted lg:grid">
+      <div className="hidden grid-cols-[32px_1fr_1fr_80px_auto] items-center gap-4 border-b border-border px-3 pb-2 text-caption text-text-muted lg:grid">
         <span>#</span>
         <span>Title</span>
         <span>Album</span>
@@ -45,8 +53,10 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
               index={index}
               isActive={currentTrack?._id === track._id}
               isPlaying={isPlaying}
+              isAdmin={isAdmin}
               onPlay={() => handlePlay(track)}
               onOpenMenu={(e) => openMenu(track, e)}
+              onCoverUpload={onCoverUpload}
             />
           </div>
         ))}

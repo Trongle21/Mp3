@@ -12,6 +12,7 @@ interface AuthState {
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   loadFromStorage: () => Promise<void>;
+  setUser: (user: User) => void;
 }
 
 function persistTokens(accessToken: string, refreshToken: string) {
@@ -42,6 +43,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem("refreshToken");
     set({ user: null, accessToken: null, isAuthenticated: false });
   },
+
+  setUser: (user) => set({ user }),
 
   // Called once on app mount: restore session from a stored access token.
   loadFromStorage: async () => {

@@ -5,13 +5,16 @@ import { ListMusic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useGroups } from "@/hooks/useGroups";
+import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GroupCard } from "@/components/groups/GroupCard";
 import { CreateGroupDialog } from "@/components/groups/CreateGroupDialog";
 
 export default function GroupsPage() {
+  const { user } = useAuth();
   const { data: groups, isLoading } = useGroups();
   const [createOpen, setCreateOpen] = useState(false);
+  const isAdmin = !!user?.isAdmin;
 
   return (
     <div className="animate-fade-slide-in pt-4">
@@ -41,7 +44,7 @@ export default function GroupsPage() {
       {!isLoading && (groups?.length ?? 0) > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {groups!.map((group) => (
-            <GroupCard key={group._id} group={group} />
+            <GroupCard key={group._id} group={group} isAdmin={isAdmin} />
           ))}
         </div>
       )}
