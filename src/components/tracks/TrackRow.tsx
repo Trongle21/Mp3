@@ -52,7 +52,7 @@ export function TrackRow({
 
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <CoverThumb
-          trackId={track._id}
+          src={track.coverUrl}
           title={track.title}
           size={40}
           className="rounded"

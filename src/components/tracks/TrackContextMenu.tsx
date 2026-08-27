@@ -2,29 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Pencil, Trash2, ListPlus } from "lucide-react";
+import { toast } from "sonner";
 import type { Track } from "@/interfaces/track.interface";
-import { useDeleteTrack, useUpdateTrack } from "@/hooks/useTracks";
+import { useDeleteTrack } from "@/hooks/useTracks";
 import { useGroups, useAddTrackToGroup } from "@/hooks/useGroups";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { toast } from "sonner";
 
 interface TrackContextMenuProps {
   track: Track;
   x: number;
   y: number;
   onClose: () => void;
+  onEdit: () => void;
 }
 
-export function TrackContextMenu({ track, x, y, onClose }: TrackContextMenuProps) {
+export function TrackContextMenu({ track, x, y, onClose, onEdit }: TrackContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [showGroups, setShowGroups] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [showRename, setShowRename] = useState(false);
-  const [title, setTitle] = useState(track.title);
 
   const { data: groups } = useGroups();
   const deleteTrack = useDeleteTrack();
-  const updateTrack = useUpdateTrack();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -34,7 +32,10 @@ export function TrackContextMenu({ track, x, y, onClose }: TrackContextMenuProps
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
 
-  const menuStyle = { top: Math.min(y, window.innerHeight - 220), left: Math.min(x, window.innerWidth - 220) };
+  const menuStyle = {
+    top: Math.min(y, window.innerHeight - 220),
+    left: Math.min(x, window.innerWidth - 220),
+  };
 
   return (
     <>
@@ -43,9 +44,9 @@ export function TrackContextMenu({ track, x, y, onClose }: TrackContextMenuProps
         style={menuStyle}
         className="fixed z-30 w-52 rounded-lg border border-border bg-bg-elevated py-1 shadow-xl animate-fade-slide-in"
       >
-        {!showRename && !showGroups && (
+        {!showGroups && (
           <>
-            <MenuItem icon={Pencil} label="Rename" onClick={() => setShowRename(true)} />
+            <MenuItem icon={Pencil} label="Edit" onClick={onEdit} />
             <MenuItem icon={ListPlus} label="Add to group" onClick={() => setShowGroups(true)} />
             <MenuItem
               icon={Trash2}
@@ -59,39 +60,19 @@ export function TrackContextMenu({ track, x, y, onClose }: TrackContextMenuProps
           </>
         )}
 
-        {showRename && (
-          <form
-            className="px-3 py-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              updateTrack.mutate(
-                { id: track._id, body: { title } },
-                {
-                  onSuccess: () => {
-                    toast.success("Track renamed");
-                    onClose();
-                  },
-                  onError: () => toast.error("Couldn't rename track"),
-                }
-              );
-            }}
-          >
-            <input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded border border-border bg-bg-primary px-2 py-1 text-caption text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            />
-          </form>
-        )}
-
         {showGroups && (
           <div className="max-h-48 overflow-y-auto">
             {(groups ?? []).length === 0 && (
               <p className="px-3 py-2 text-caption text-text-muted">No groups yet</p>
             )}
             {(groups ?? []).map((group) => (
-              <AddToGroupItem key={group._id} groupId={group._id} name={group.name} trackId={track._id} onDone={onClose} />
+              <AddToGroupItem
+                key={group._id}
+                groupId={group._id}
+                name={group.name}
+                trackId={track._id}
+                onDone={onClose}
+              />
             ))}
           </div>
         )}

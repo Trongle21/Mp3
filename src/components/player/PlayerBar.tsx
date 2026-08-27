@@ -43,7 +43,7 @@ export function PlayerBar() {
             {currentTrack ? (
               <>
                 <Link href="/player" className="shrink-0">
-                  <CoverThumb trackId={currentTrack._id} title={currentTrack.title} size={48} className="rounded" />
+                  <CoverThumb src={currentTrack.coverUrl} title={currentTrack.title} size={48} className="rounded" />
                 </Link>
                 <div className="min-w-0">
                   <p className="truncate text-body font-medium text-text-primary">{currentTrack.title}</p>
@@ -75,7 +75,7 @@ export function PlayerBar() {
             {currentTrack ? (
               <>
                 <Link href="/player" className="shrink-0">
-                  <CoverThumb trackId={currentTrack._id} title={currentTrack.title} size={56} className="rounded" />
+                  <CoverThumb src={currentTrack.coverUrl} title={currentTrack.title} size={56} className="rounded" />
                 </Link>
                 <div className="min-w-0">
                   <p className="truncate text-body font-medium text-text-primary">{currentTrack.title}</p>

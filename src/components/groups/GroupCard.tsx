@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Play, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Group } from "@/interfaces/group.interface";
-import { coverUrl, coverInitial } from "@/lib/utils";
+import { coverInitial } from "@/lib/utils";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useDeleteGroupInline } from "@/hooks/useGroups";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -46,9 +46,9 @@ export function GroupCard({ group }: { group: Group }) {
               <div className="grid h-full w-full grid-cols-2 grid-rows-2">
                 {covers.map((track, i) => (
                   <div key={i} className="relative">
-                    {track?.coverKey ? (
+                    {track?.coverUrl ? (
                       <Image
-                        src={coverUrl(track.coverKey)}
+                        src={track.coverUrl}
                         alt=""
                         fill
                         sizes="(min-width: 1024px) 13vw, (min-width: 640px) 17vw, 25vw"

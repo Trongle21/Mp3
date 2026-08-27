@@ -4,11 +4,13 @@ import { useState } from "react";
 import type { Track } from "@/interfaces/track.interface";
 import { TrackRow } from "./TrackRow";
 import { TrackContextMenu } from "./TrackContextMenu";
+import { EditTrackDialog } from "./EditTrackDialog";
 import { usePlayer } from "@/hooks/usePlayer";
 
 export function TrackList({ tracks }: { tracks: Track[] }) {
   const { currentTrack, isPlaying, play, toggle, setQueue } = usePlayer();
   const [menuFor, setMenuFor] = useState<{ track: Track; x: number; y: number } | null>(null);
+  const [editTrack, setEditTrack] = useState<Track | null>(null);
 
   const handlePlay = (track: Track) => {
     if (currentTrack?._id === track._id) {
@@ -56,6 +58,15 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
           x={menuFor.x}
           y={menuFor.y}
           onClose={() => setMenuFor(null)}
+          onEdit={() => setEditTrack(menuFor.track)}
+        />
+      )}
+
+      {editTrack && (
+        <EditTrackDialog
+          open={true}
+          onOpenChange={(open) => { if (!open) setEditTrack(null); }}
+          track={editTrack}
         />
       )}
     </div>

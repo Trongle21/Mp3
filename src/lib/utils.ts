@@ -13,12 +13,6 @@ export function formatDuration(totalSeconds: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-export function coverUrl(coverKey: string): string {
-  if (!coverKey) return "";
-  const base = process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? "";
-  return `${base}/${coverKey}`;
-}
-
 /**
  * First non-whitespace character of a track/group title, uppercased.
  * Falls back to "?" for empty / non-string input.

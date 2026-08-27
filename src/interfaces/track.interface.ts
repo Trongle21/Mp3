@@ -6,6 +6,8 @@ export interface Track {
   durationSec: number;
   fileKey: string;
   coverKey: string;
+  /** Direct URL to the cover art (R2 public). */
+  coverUrl: string;
   mimeType: string;
   sizeBytes: number;
   owner: string;

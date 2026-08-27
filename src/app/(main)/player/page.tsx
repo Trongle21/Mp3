@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, Play, Heart } from "lucide-react";
 import { usePlayer } from "@/hooks/usePlayer";
-import { coverUrl } from "@/lib/utils";
 import { SeekBar } from "@/components/player/SeekBar";
 import { PlayerControls } from "@/components/player/PlayerControls";
 import { ShuffleButton } from "@/components/player/ShuffleButton";
@@ -28,7 +27,7 @@ export default function NowPlayingPage() {
     );
   }
 
-  const bgUrl = currentTrack.coverKey ? coverUrl(currentTrack.coverKey) : null;
+  const bgUrl = currentTrack.coverUrl || null;
 
   return (
     <div className="relative -mx-4 -mt-4 flex min-h-[calc(100vh-160px)] flex-col overflow-hidden pb-8 sm:-mx-6 sm:min-h-[calc(100vh-90px)] sm:pb-12 lg:-mx-8">
@@ -52,9 +51,9 @@ export default function NowPlayingPage() {
 
       <div className="relative z-10 mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-4 sm:px-8">
         <div className="relative h-[min(55vw,320px)] w-[min(55vw,320px)] shrink-0 overflow-hidden rounded-lg shadow-2xl sm:h-[min(45vh,500px)] sm:w-[min(45vh,500px)]">
-          {currentTrack.coverKey ? (
+          {currentTrack.coverUrl ? (
             <Image
-              src={coverUrl(currentTrack.coverKey)}
+              src={currentTrack.coverUrl}
               alt={currentTrack.title}
               fill
               className="h-full w-full object-cover"

@@ -78,7 +78,7 @@ export function DraggableTrackRow({
 
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <CoverThumb
-          trackId={item.track._id}
+          src={item.track.coverUrl}
           title={item.track.title}
           size={40}
           className="rounded"

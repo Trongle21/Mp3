@@ -1,15 +1,14 @@
 "use client";
 
-import { useAuthenticatedImage } from "@/hooks/useAuthenticatedImage";
-import { coverInitial } from "@/lib/utils";
+import Image from "next/image";
 
 interface CoverThumbProps {
   /**
-   * Track ID — the cover is fetched via the authenticated `/tracks/:id/cover`
-   * endpoint and rendered as a blob URL.
+   * Direct public URL to the cover art. When falsy the gradient placeholder
+   * is shown instead.
    */
-  trackId?: string | null;
-  /** Display title used for the placeholder glyph and alt text. */
+  src?: string | null;
+  /** Display title used for the alt text and the placeholder glyph. */
   title?: string | null;
   /** Width and height of the square thumbnail in pixels. */
   size?: number;
@@ -21,24 +20,17 @@ interface CoverThumbProps {
 /**
  * Square cover thumbnail.
  *
- * - With `trackId`: fetches the artwork through the authenticated endpoint.
- * - Without `trackId` or on fetch failure: renders the first letter of `title`
- *   on a gradient background.
- *
- * Uses a plain `<img>` (not next/image) because the source is an in-memory
- * blob URL created by `URL.createObjectURL`, which next/image cannot optimize.
+ * - With `src`: renders a next/image from the direct R2 public URL.
+ * - Without `src`: renders the first letter of `title` on a gradient background.
  */
 export function CoverThumb({
-  trackId,
+  src,
   title,
   size = 40,
   className = "rounded",
   fill = false,
 }: CoverThumbProps) {
-  const endpoint = trackId ? `/tracks/${trackId}/cover` : null;
-  const url = useAuthenticatedImage(endpoint);
-
-  if (!url) {
+  if (!src) {
     return (
       <div
         className={`flex shrink-0 items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated ${className}`}
@@ -53,31 +45,30 @@ export function CoverThumb({
               : { fontSize: Math.max(12, Math.round(size * 0.4)) }
           }
         >
-          {coverInitial(title)}
+          {title ? title.trim()[0]?.toUpperCase() ?? "?" : "?"}
         </span>
       </div>
     );
   }
 
   if (fill) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
-      <img
-        src={url}
+      <Image
+        src={src}
         alt={title ?? ""}
-        className={`absolute inset-0 h-full w-full object-cover ${className}`}
+        fill
+        className={`object-cover ${className}`}
       />
     );
   }
 
-  // eslint-disable-next-line @next/next/no-img-element
   return (
-    <img
-      src={url}
+    <Image
+      src={src}
       alt={title ?? ""}
-      className={`shrink-0 object-cover ${className}`}
       width={size}
       height={size}
+      className={className}
     />
   );
 }

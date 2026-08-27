@@ -16,6 +16,27 @@ interface ImagePickerProps {
   /** Preview size in pixels. Defaults to 96. */
   size?: number;
   disabled?: boolean;
+  /**
+   * When provided, shows this URL as the existing image behind the picker button.
+   * When a new `file` is selected, the preview switches to the local object URL.
+   */
+  src?: string | null;
+}
+
+function ObjectUrlPreview({ src }: { src: string }) {
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+
+  const apply = (file: File) => {
+    const url = URL.createObjectURL(file);
+    setObjectUrl(url);
+  };
+
+  return (
+    <div
+      style={{ backgroundImage: `url(${objectUrl ?? src})` }}
+      className="h-full w-full bg-cover bg-center"
+    />
+  );
 }
 
 /**
@@ -30,6 +51,7 @@ export function ImagePicker({
   accept = "image/jpeg,image/png,image/webp,image/gif",
   size = 96,
   disabled,
+  src,
 }: ImagePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -49,7 +71,6 @@ export function ImagePicker({
     const err = validateImageFile(selected);
     if (err) {
       toast.error(imageValidationMessage(err));
-      // Reset the native input so the same file can be picked again after fixing it.
       if (inputRef.current) inputRef.current.value = "";
       return;
     }
@@ -72,10 +93,26 @@ export function ImagePicker({
           disabled={disabled}
           className="flex w-full items-center gap-3 rounded-lg border border-dashed border-border bg-bg-elevated px-3 py-2 text-left text-caption text-text-secondary transition-colors hover:border-text-muted disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded bg-bg-highlight">
-            <ImagePlus className="h-5 w-5 text-text-muted" />
-          </div>
-          <span>Choose an image…</span>
+          {src ? (
+            <div
+              className="shrink-0 overflow-hidden rounded"
+              style={{ width: size, height: size }}
+            >
+              <img
+                src={src}
+                alt="Current"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div
+              className="flex shrink-0 items-center justify-center rounded bg-bg-highlight"
+              style={{ width: size, height: size }}
+            >
+              <ImagePlus className="h-5 w-5 text-text-muted" />
+            </div>
+          )}
+          <span>Change image…</span>
           <input
             ref={inputRef}
             type="file"

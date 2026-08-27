@@ -85,7 +85,7 @@ function QueueRow({
   isActive,
   onPlay,
 }: {
-  track: { _id: string; title: string; artist: string; durationSec: number; coverKey?: string };
+  track: { _id: string; title: string; artist: string; durationSec: number; coverUrl?: string };
   isActive: boolean;
   onPlay: () => void;
 }) {
@@ -112,7 +112,7 @@ function QueueRow({
         <GripVertical className="h-4 w-4" />
       </button>
       <button onClick={onPlay} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-        <CoverThumb trackId={track._id} title={track.title} size={36} className="rounded" />
+        <CoverThumb src={track.coverUrl} title={track.title} size={36} className="rounded" />
         <div className="min-w-0">
           <p className={`truncate text-caption font-medium ${isActive ? "text-accent" : "text-text-primary"}`}>
             {track.title}
