@@ -10,7 +10,9 @@ interface ConfirmDialogProps {
   description: string;
   confirmLabel?: string;
   danger?: boolean;
-  onConfirm: () => void;
+  /** If false, caller is responsible for closing the dialog. Default: true */
+  autoClose?: boolean;
+  onConfirm: () => void | Promise<void>;
 }
 
 export function ConfirmDialog({
@@ -20,6 +22,7 @@ export function ConfirmDialog({
   description,
   confirmLabel = "Confirm",
   danger = true,
+  autoClose = true,
   onConfirm,
 }: ConfirmDialogProps) {
   return (
@@ -38,9 +41,9 @@ export function ConfirmDialog({
             </Dialog.Close>
             <Button
               variant={danger ? "danger" : "default"}
-              onClick={() => {
-                onConfirm();
-                onOpenChange(false);
+              onClick={async () => {
+                await onConfirm();
+                if (autoClose) onOpenChange(false);
               }}
             >
               {confirmLabel}

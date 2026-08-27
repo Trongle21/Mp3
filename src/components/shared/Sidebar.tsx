@@ -15,6 +15,7 @@ import {
   Upload,
   FolderEdit,
   Users,
+  Disc,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +23,7 @@ import { useSidebarStore } from "@/stores/sidebar.store";
 
 const navItems = [
   { href: "/library", label: "Library", icon: Library },
+  { href: "/albums", label: "Albums", icon: Disc },
   { href: "/groups", label: "Groups", icon: ListMusic },
   { href: "/search", label: "Search", icon: Search },
 ];

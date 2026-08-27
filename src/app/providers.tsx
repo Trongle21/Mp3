@@ -15,7 +15,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             retry: 1,
           },
         },
-      })
+      }),
   );
 
   const loadFromStorage = useAuthStore((s) => s.loadFromStorage);

@@ -19,7 +19,7 @@ interface EditTrackDialogProps {
 export function EditTrackDialog({ open, onOpenChange, track }: EditTrackDialogProps) {
   const [title, setTitle] = useState(track.title);
   const [artist, setArtist] = useState(track.artist);
-  const [album, setAlbum] = useState(track.album);
+  const [album, setAlbum] = useState(typeof track.album === "string" ? track.album : "");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const queryClient = useQueryClient();
@@ -29,7 +29,7 @@ export function EditTrackDialog({ open, onOpenChange, track }: EditTrackDialogPr
     if (open) {
       setTitle(track.title);
       setArtist(track.artist);
-      setAlbum(track.album);
+      setAlbum(typeof track.album === "string" ? track.album : "");
       setCoverFile(null);
     }
   }, [open, track]);
@@ -45,7 +45,7 @@ export function EditTrackDialog({ open, onOpenChange, track }: EditTrackDialogPr
       const hasMetaChanges =
         trimmedTitle !== track.title.trim() ||
         artist.trim() !== track.artist.trim() ||
-        album.trim() !== track.album.trim();
+        (typeof track.album === "string" ? album.trim() : "") !== track.album.trim();
 
       if (hasMetaChanges) {
         await updateTrack(track._id, {

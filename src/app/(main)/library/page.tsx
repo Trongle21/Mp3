@@ -27,12 +27,17 @@ export default function LibraryPage() {
   const [sort, setSort] = useState<SortOption>("recent");
   const debouncedSearch = useDebouncedValue(search, 300);
 
-  const { data, isLoading } = useTracks({ search: debouncedSearch || undefined, sort });
+  const { data, isLoading } = useTracks({
+    search: debouncedSearch || undefined,
+    sort,
+  });
   const tracks = useMemo(() => data?.data ?? [], [data]);
+
+  console.log(tracks, "tracks");
 
   return (
     <div className="animate-fade-slide-in pt-4">
-      <div className="mb-4 flex items-start items-center justify-between gap-3 sm:mb-6">
+      <div className="mb-4 flex items-center justify-between gap-3 sm:mb-6">
         <h1 className="text-h2 sm:text-h1">Your Library</h1>
         <Button onClick={() => setUploadOpen(true)}>
           <Upload className="mr-2 h-4 w-4" />
@@ -74,7 +79,9 @@ export default function LibraryPage() {
       {!isLoading && tracks.length === 0 && (
         <EmptyState
           icon={Upload}
-          title={debouncedSearch ? "No tracks found" : "Upload your first track"}
+          title={
+            debouncedSearch ? "No tracks found" : "Upload your first track"
+          }
           description={
             debouncedSearch
               ? "Try a different search term."
@@ -85,7 +92,9 @@ export default function LibraryPage() {
         />
       )}
 
-      {!isLoading && tracks.length > 0 && <TrackList tracks={tracks} isAdmin={!!user?.isAdmin} />}
+      {!isLoading && tracks.length > 0 && (
+        <TrackList tracks={tracks} isAdmin={!!user?.isAdmin} />
+      )}
 
       <UploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
     </div>

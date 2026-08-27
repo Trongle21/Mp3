@@ -96,7 +96,9 @@ export function TrackRow({
           </div>
         </div>
 
-        <p className="hidden truncate text-caption text-text-secondary lg:block">{track.album}</p>
+        <p className="hidden truncate text-caption text-text-secondary lg:block">
+          {typeof track.album === "string" ? track.album : (track.album as { title?: string })?.title ?? ""}
+        </p>
         <p className="hidden text-caption text-text-secondary lg:block">
           {formatDuration(track.durationSec)}
         </p>

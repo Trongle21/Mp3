@@ -11,6 +11,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  console.log(error, "error");
+
   useEffect(() => {
     console.error("App error:", error);
   }, [error]);
@@ -26,7 +28,9 @@ export default function GlobalError({
           An unexpected error occurred. Try again, or come back later.
         </p>
         {error.digest && (
-          <p className="mt-3 text-caption text-text-muted">Error ID: {error.digest}</p>
+          <p className="mt-3 text-caption text-text-muted">
+            Error ID: {error.digest}
+          </p>
         )}
         <div className="mt-6">
           <Button onClick={reset} className="w-full">

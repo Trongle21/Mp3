@@ -25,4 +25,6 @@ export interface TrackQueryParams {
   sort?: "recent" | "title_asc" | "artist_asc";
   page?: number;
   limit?: number;
+  /** Filter tracks by album ID (populates album info). */
+  albumId?: string;
 }

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImagePicker } from "@/components/shared/ImagePicker";
 import { uploadTrack, uploadTrackCover } from "@/lib/api-tracks";
+import { useAlbums } from "@/hooks/useAlbums";
 import { cn } from "@/lib/utils";
 
 interface UploadFormProps {
@@ -17,13 +18,14 @@ interface UploadFormProps {
 export function UploadForm({ onDone }: UploadFormProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+  const { data: albumsData } = useAlbums({ limit: 100 });
 
   const [file, setFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [meta, setMeta] = useState({ title: "", artist: "", album: "" });
+  const [meta, setMeta] = useState({ title: "", artist: "", albumId: "" });
 
   const handleFile = (f: File) => {
     if (!f.type.startsWith("audio/")) {
@@ -45,17 +47,14 @@ export function UploadForm({ onDone }: UploadFormProps) {
     if (!file) return;
     setIsUploading(true);
     try {
-      // Step 1: upload audio + metadata.
       const formData = new FormData();
       formData.append("file", file);
       if (meta.title) formData.append("title", meta.title);
       if (meta.artist) formData.append("artist", meta.artist);
-      if (meta.album) formData.append("album", meta.album);
+      if (meta.albumId) formData.append("albumId", meta.albumId);
 
       const { data: track } = (await uploadTrack(formData, setProgress)).data;
 
-      // Step 2: upload cover art (best-effort). The track itself is already
-      // created; a failure here shouldn't roll back the upload.
       if (coverFile) {
         try {
           await uploadTrackCover(track._id, coverFile);
@@ -66,6 +65,9 @@ export function UploadForm({ onDone }: UploadFormProps) {
       }
 
       queryClient.invalidateQueries({ queryKey: ["tracks"] });
+      if (meta.albumId) {
+        queryClient.invalidateQueries({ queryKey: ["album", meta.albumId] });
+      }
       toast.success("Track uploaded");
       onDone();
     } catch {
@@ -126,11 +128,23 @@ export function UploadForm({ onDone }: UploadFormProps) {
         value={meta.artist}
         onChange={(e) => setMeta((m) => ({ ...m, artist: e.target.value }))}
       />
-      <Input
-        placeholder="Album (optional)"
-        value={meta.album}
-        onChange={(e) => setMeta((m) => ({ ...m, album: e.target.value }))}
-      />
+
+      <div className="space-y-1.5">
+        <p className="text-caption text-text-secondary">Album (optional)</p>
+        <select
+          value={meta.albumId}
+          onChange={(e) => setMeta((m) => ({ ...m, albumId: e.target.value }))}
+          disabled={isUploading}
+          className="flex h-11 w-full cursor-pointer rounded-md border border-border bg-bg-elevated px-3 text-body text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">No album</option>
+          {albumsData?.data.map((album) => (
+            <option key={album._id} value={album._id}>
+              {album.title} {album.artist ? `— ${album.artist}` : ""}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <ImagePicker
         file={coverFile}
