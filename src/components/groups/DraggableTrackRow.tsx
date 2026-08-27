@@ -1,0 +1,79 @@
+"use client";
+
+import Image from "next/image";
+import { GripVertical, Play, Pause, X } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { GroupTrackItem } from "@/interfaces/group.interface";
+import { coverUrl, formatDuration } from "@/lib/utils";
+
+interface DraggableTrackRowProps {
+  item: GroupTrackItem;
+  index: number;
+  isActive: boolean;
+  isPlaying: boolean;
+  onPlay: () => void;
+  onRemove: () => void;
+}
+
+export function DraggableTrackRow({ item, index, isActive, isPlaying, onPlay, onRemove }: DraggableTrackRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.track._id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group grid grid-cols-[24px_32px_1fr_80px_32px] items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        aria-label="Drag to reorder"
+        className="cursor-grab text-text-muted opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+
+      <button onClick={onPlay} aria-label={isActive && isPlaying ? "Pause" : "Play"} className="text-text-secondary">
+        <span className="group-hover:hidden">
+          <span className={isActive ? "text-accent" : "text-text-muted"}>{index + 1}</span>
+        </span>
+        <span className="hidden group-hover:block text-text-primary">
+          {isActive && isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        </span>
+      </button>
+
+      <div className="flex min-w-0 items-center gap-3">
+        {item.track.coverKey ? (
+          <Image src={coverUrl(item.track.coverKey)} alt={item.track.title} width={40} height={40} className="rounded" />
+        ) : (
+          <div className="h-10 w-10 shrink-0 rounded bg-bg-highlight" />
+        )}
+        <div className="min-w-0">
+          <p className={`truncate font-medium ${isActive ? "text-accent" : "text-text-primary"}`}>
+            {item.track.title}
+          </p>
+          <p className="truncate text-caption text-text-secondary">{item.track.artist}</p>
+        </div>
+      </div>
+
+      <p className="text-caption text-text-secondary">{formatDuration(item.track.durationSec)}</p>
+
+      <button
+        onClick={onRemove}
+        aria-label="Remove from group"
+        className="flex h-6 w-6 items-center justify-center text-text-muted opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}

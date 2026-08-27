@@ -1,0 +1,26 @@
+export interface Track {
+  _id: string;
+  title: string;
+  artist: string;
+  album: string;
+  durationSec: number;
+  fileKey: string;
+  coverKey: string;
+  mimeType: string;
+  sizeBytes: number;
+  owner: string;
+  createdAt: string;
+}
+
+/** Track enriched with derived, ready-to-use URLs for playback and display. */
+export interface TrackWithStream extends Track {
+  streamUrl: string;
+  coverUrl: string;
+}
+
+export interface TrackQueryParams {
+  search?: string;
+  sort?: "recent" | "title_asc" | "artist_asc";
+  page?: number;
+  limit?: number;
+}
