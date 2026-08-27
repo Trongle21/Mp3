@@ -233,7 +233,21 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     try {
       const { data } = await playerApi.getPlayerState();
       backendState = data.data;
-      if (backendState) set({ state: backendState });
+      if (backendState) {
+        // Merge coverUrl from cached track if backend doesn't have it
+        if (backendState.currentTrack && cached?.track && !backendState.currentTrack.coverUrl) {
+          backendState.currentTrack.coverUrl = cached.track.coverUrl;
+        }
+        // Also merge for queue items
+        if (cached?.track && backendState.queue) {
+          backendState.queue = backendState.queue.map((t) =>
+            t._id === cached.track._id && !t.coverUrl && cached.track.coverUrl
+              ? { ...t, coverUrl: cached.track.coverUrl }
+              : t
+          );
+        }
+        set({ state: backendState });
+      }
     } catch {
       // Stay with the cached (or empty) state.
     }

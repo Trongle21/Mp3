@@ -33,8 +33,6 @@ export default function LibraryPage() {
   });
   const tracks = useMemo(() => data?.data ?? [], [data]);
 
-  console.log(tracks, "tracks");
-
   return (
     <div className="animate-fade-slide-in pt-4">
       <div className="mb-4 flex items-center justify-between gap-3 sm:mb-6">

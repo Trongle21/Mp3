@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { ListMusic } from "lucide-react";
+import { CoverThumb } from "@/components/shared/CoverThumb";
 import { usePlayer } from "@/hooks/usePlayer";
 import { usePlayerKeyboardShortcuts } from "@/hooks/usePlayerKeyboardShortcuts";
-import { CoverThumb } from "@/components/shared/CoverThumb";
-import { SeekBar } from "./SeekBar";
-import { VolumeControl } from "./VolumeControl";
-import { QueuePanel } from "./QueuePanel";
+import { ListMusic } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { PlayerControls } from "./PlayerControls";
-import { ShuffleButton } from "./ShuffleButton";
+import { QueuePanel } from "./QueuePanel";
 import { RepeatModeButton } from "./RepeatModeButton";
+import { SeekBar } from "./SeekBar";
+import { ShuffleButton } from "./ShuffleButton";
+import { VolumeControl } from "./VolumeControl";
 
 export function PlayerBar() {
   const { currentTrack, positionSec, seek } = usePlayer();
@@ -19,12 +20,19 @@ export function PlayerBar() {
 
   usePlayerKeyboardShortcuts();
 
+  const pathname = usePathname();
+
+  if (pathname?.includes("/player")) {
+    return null;
+  }
+
   return (
     <>
       <QueuePanel open={queueOpen} onClose={() => setQueueOpen(false)} />
 
       {/* ── Mobile (< sm): stacked layout ── */}
-      <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col border-t border-border bg-bg-secondary lg:hidden"
+      <div
+        className="fixed inset-x-0 bottom-0 z-20 flex flex-col border-t border-border bg-bg-secondary lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {/* Seek bar spans full width */}
@@ -43,11 +51,20 @@ export function PlayerBar() {
             {currentTrack ? (
               <>
                 <Link href="/player" className="shrink-0">
-                  <CoverThumb src={currentTrack.coverUrl} title={currentTrack.title} size={48} className="rounded" />
+                  <CoverThumb
+                    src={currentTrack.coverUrl}
+                    title={currentTrack.title}
+                    size={48}
+                    className="rounded"
+                  />
                 </Link>
                 <div className="min-w-0">
-                  <p className="truncate text-body font-medium text-text-primary">{currentTrack.title}</p>
-                  <p className="truncate text-caption text-text-muted">{currentTrack.artist}</p>
+                  <p className="truncate text-body font-medium text-text-primary">
+                    {currentTrack.title}
+                  </p>
+                  <p className="truncate text-caption text-text-muted">
+                    {currentTrack.artist}
+                  </p>
                 </div>
               </>
             ) : (
@@ -57,7 +74,11 @@ export function PlayerBar() {
 
           {/* Playback controls (no seek bar on mobile bar — seek is above) */}
           <div className="flex items-center gap-3">
-            <button onClick={() => setQueueOpen(true)} aria-label="Open queue" className="flex h-10 w-10 items-center justify-center rounded-full text-text-secondary hover:text-text-primary sm:hidden">
+            <button
+              onClick={() => setQueueOpen(true)}
+              aria-label="Open queue"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-text-secondary hover:text-text-primary sm:hidden"
+            >
               <ListMusic className="h-5 w-5" />
             </button>
             <PlayerControls size="sm" />
@@ -66,7 +87,8 @@ export function PlayerBar() {
       </div>
 
       {/* ── Desktop (lg+): centered bar ── */}
-      <div className="glass-player fixed inset-x-0 bottom-0 z-20 hidden h-player items-center justify-center border-t border-border px-4 lg:flex"
+      <div
+        className="glass-player fixed inset-x-0 bottom-0 z-20 hidden h-player items-center justify-center border-t border-border px-4 lg:flex"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex w-[60%] items-center justify-between gap-4">
@@ -75,11 +97,20 @@ export function PlayerBar() {
             {currentTrack ? (
               <>
                 <Link href="/player" className="shrink-0">
-                  <CoverThumb src={currentTrack.coverUrl} title={currentTrack.title} size={56} className="rounded" />
+                  <CoverThumb
+                    src={currentTrack.coverUrl}
+                    title={currentTrack.title}
+                    size={56}
+                    className="rounded"
+                  />
                 </Link>
                 <div className="min-w-0">
-                  <p className="truncate text-body font-medium text-text-primary">{currentTrack.title}</p>
-                  <p className="truncate text-caption text-text-muted">{currentTrack.artist}</p>
+                  <p className="truncate text-body font-medium text-text-primary">
+                    {currentTrack.title}
+                  </p>
+                  <p className="truncate text-caption text-text-muted">
+                    {currentTrack.artist}
+                  </p>
                 </div>
               </>
             ) : (
@@ -108,7 +139,11 @@ export function PlayerBar() {
             <button
               onClick={() => setQueueOpen((v) => !v)}
               aria-label="Toggle queue"
-              className={queueOpen ? "text-accent" : "text-text-secondary hover:text-text-primary"}
+              className={
+                queueOpen
+                  ? "text-accent"
+                  : "text-text-secondary hover:text-text-primary"
+              }
             >
               <ListMusic className="h-4 w-4" />
             </button>

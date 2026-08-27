@@ -3,7 +3,14 @@
 import { useRef, useState } from "react";
 import type { Track } from "@/interfaces/track.interface";
 import { formatDuration } from "@/lib/utils";
-import { MoreHorizontal, Pause, Play, Pencil, Trash2, Image as ImageIcon } from "lucide-react";
+import {
+  MoreHorizontal,
+  Pause,
+  Play,
+  Pencil,
+  Trash2,
+  Image as ImageIcon,
+} from "lucide-react";
 import { CoverThumb } from "../shared/CoverThumb";
 import { EditTrackDialog } from "./EditTrackDialog";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -52,7 +59,7 @@ export function TrackRow({
     <>
       <div
         onDoubleClick={onPlay}
-        className="group grid grid-cols-[32px_40px_1fr_80px_32px] items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-4 lg:grid-cols-[32px_1fr_1fr_80px_auto]"
+        className="group grid items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-4 grid-cols-[40px_1fr_1fr_80px_auto] md:grid-cols-[32px_1fr_1fr_80px_auto]"
       >
         <button
           onClick={onPlay}
@@ -84,9 +91,9 @@ export function TrackRow({
             size={40}
             className="rounded"
           />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p
-              className={`truncate font-medium ${isActive ? "text-accent" : "text-text-primary"}`}
+              className={`truncate w-full font-medium ${isActive ? "text-accent" : "text-text-primary"}`}
             >
               {track.title}
             </p>
@@ -96,10 +103,12 @@ export function TrackRow({
           </div>
         </div>
 
-        <p className="hidden truncate text-caption text-text-secondary lg:block">
-          {typeof track.album === "string" ? track.album : (track.album as { title?: string })?.title ?? ""}
+        <p className=" truncate text-caption text-text-secondary">
+          {typeof track.album === "string"
+            ? track.album
+            : ((track.album as { title?: string })?.title ?? "")}
         </p>
-        <p className="hidden text-caption text-text-secondary lg:block">
+        <p className=" text-caption text-text-secondary">
           {formatDuration(track.durationSec)}
         </p>
 
@@ -107,7 +116,7 @@ export function TrackRow({
           <button
             onClick={onOpenMenu}
             aria-label="More options"
-            className="flex h-8 w-8 items-center justify-center text-text-muted opacity-0 transition-opacity hover:text-text-primary group-hover:opacity-100"
+            className="flex h-8 w-8 items-center justify-center text-text-primary opacity-100 transition-opacity hover:opacity-70"
           >
             <MoreHorizontal className="h-4 w-4" />
           </button>
@@ -151,7 +160,9 @@ export function TrackRow({
       {showCoverPicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-bg-elevated p-6 shadow-xl">
-            <p className="text-body font-medium text-text-primary">Change cover for &quot;{track.title}&quot;</p>
+            <p className="text-body font-medium text-text-primary">
+              Change cover for &quot;{track.title}&quot;
+            </p>
             <button
               onClick={() => coverInputRef.current?.click()}
               className="rounded-lg bg-accent px-4 py-2 text-body font-semibold text-black transition-colors hover:bg-accent-hover"
@@ -171,7 +182,11 @@ export function TrackRow({
         </div>
       )}
 
-      <EditTrackDialog open={showEdit} onOpenChange={setShowEdit} track={track} />
+      <EditTrackDialog
+        open={showEdit}
+        onOpenChange={setShowEdit}
+        track={track}
+      />
 
       <ConfirmDialog
         open={showDelete}

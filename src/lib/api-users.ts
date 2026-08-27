@@ -13,3 +13,6 @@ export const updateUser = (
   userId: string,
   body: { name?: string; birthdate?: string | null; gender?: "male" | "female" | "other" | null }
 ) => api.patch<ApiSuccess<User>>(`/users/${userId}`, body);
+
+export const deleteUser = (userId: string) =>
+  api.delete<ApiSuccess<{ _id: string }>>(`/users/${userId}`);

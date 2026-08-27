@@ -1,7 +1,8 @@
 "use client";
 
-import { Play, X } from "lucide-react";
 import { usePlayerStore } from "@/stores/player.store";
+import { Play, X } from "lucide-react";
+import { CoverThumb } from "../shared/CoverThumb";
 
 export function ResumeBar() {
   const pending = usePlayerStore((s) => s.pendingResume);
@@ -10,18 +11,21 @@ export function ResumeBar() {
 
   if (!pending) return null;
 
-  const { track, positionSec } = pending;
+  const { track } = pending;
 
   return (
     <div
-      className="fixed bottom-[72px] sm:bottom-[82px] left-0 right-0 z-30 border-t border-border/50 bg-bg-secondary/95 backdrop-blur-md md:left-sidebar"
+      className="fixed bottom-[110px] sm:bottom-[110px] right-0 z-30 border-t border-border/50 bg-bg-secondary/95 backdrop-blur-md w-fit"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-2">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-bg-highlight">
-          <Play className="h-4 w-4 text-text-muted" />
-        </div>
-        <div className="min-w-0 flex-1">
+      <div className="mx-auto flex w-fit items-center gap-3 px-4 py-2">
+        <CoverThumb
+          src={track?.coverUrl}
+          title={track?.title}
+          size={48}
+          className="rounded"
+        />
+        {/* <div className="min-w-0 flex-1">
           <p className="truncate text-xs text-text-primary">
             Resume{" "}
             <span className="text-text-muted">&ldquo;{track.title}&rdquo;</span>
@@ -32,7 +36,7 @@ export function ResumeBar() {
               ? ` · ${Math.floor(positionSec / 60)}:${String(positionSec % 60).padStart(2, "0")}`
               : ""}
           </p>
-        </div>
+        </div> */}
         <button
           onClick={() => accept()}
           className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-black transition-transform hover:scale-105"

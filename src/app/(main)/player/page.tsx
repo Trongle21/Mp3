@@ -10,10 +10,15 @@ import { RepeatModeButton } from "@/components/player/RepeatModeButton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useState } from "react";
 import { CoverThumb } from "@/components/shared/CoverThumb";
+import { usePathname } from "next/navigation";
 
 export default function NowPlayingPage() {
   const { currentTrack, positionSec, seek, isPlaying } = usePlayer();
   const [liked, setLiked] = useState(false);
+
+  const pathname = usePathname();
+
+  const isPlayerPage = pathname?.includes("/player");
 
   if (!currentTrack) {
     return (

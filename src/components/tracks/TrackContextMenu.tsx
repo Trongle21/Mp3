@@ -36,11 +36,6 @@ export function TrackContextMenu({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      // Khi dialog xác nhận xoá đang mở, dialog đó thường render qua portal
-      // (ra ngoài DOM tree của `ref`), nên click bên trong nó vẫn bị tính là
-      // "click outside" và làm menu này bị đóng (unmount) trước khi
-      // onConfirm của dialog kịp chạy -> mất luôn cả API call.
-      // Bỏ qua listener khi showDelete = true để tránh việc đó.
       if (showDelete) return;
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
     };

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, Star, ArrowUp, ArrowDown, Users, Pencil } from "lucide-react";
+import { Crown, Star, ArrowUp, ArrowDown, Users, Pencil, Trash2 } from "lucide-react";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { EditUserModal } from "@/components/admin/EditUserModal";
 import type { User } from "@/interfaces/user.interface";
 
@@ -87,11 +88,14 @@ export default function AdminUsersPage() {
     isLoading,
     updateRole,
     updateUser,
+    deleteUser,
     isUpdatingRole,
     isUpdatingUser,
+    isDeletingUser,
   } = useUsers();
   const router = useRouter();
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (currentUser && currentUser.isAdmin !== "master") {
@@ -181,13 +185,24 @@ export default function AdminUsersPage() {
                       isUpdating={isUpdatingRole}
                     />
                     {user.isAdmin !== "master" && (
-                      <button
-                        onClick={() => setEditingUser(user)}
-                        title="Sửa thông tin"
-                        className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
+                      <>
+                        <button
+                          onClick={() => setEditingUser(user)}
+                          title="Sửa thông tin"
+                          className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        {user._id !== currentUser?._id && (
+                          <button
+                            onClick={() => setDeletingUser(user)}
+                            title="Xóa user"
+                            className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-danger/20 hover:text-danger"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -218,6 +233,20 @@ export default function AdminUsersPage() {
           isSaving={isUpdatingUser}
         />
       )}
+
+      <ConfirmDialog
+        open={!!deletingUser}
+        onOpenChange={(open) => !open && setDeletingUser(null)}
+        title="Xóa user"
+        description={`Bạn có chắc muốn xóa user "${deletingUser?.name || deletingUser?.email}"?\nTất cả track, group, album của user này sẽ bị xóa.`}
+        confirmLabel={isDeletingUser ? "Đang xóa..." : "Xóa"}
+        onConfirm={() => {
+          if (!deletingUser) return;
+          deleteUser(deletingUser._id, {
+            onSettled: () => setDeletingUser(null),
+          });
+        }}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllUsers, updateUserRole, updateUser } from "@/lib/api-users";
+import { getAllUsers, updateUserRole, updateUser, deleteUser } from "@/lib/api-users";
 import type { User } from "@/interfaces/user.interface";
 import { toast } from "sonner";
 
@@ -45,13 +45,30 @@ export function useUsers() {
     },
   });
 
+  const deleteUserMutation = useMutation({
+    mutationFn: (userId: string) => deleteUser(userId),
+    onSuccess: (_res, userId) => {
+      queryClient.setQueryData(["admin", "users"], (old: User[] | undefined) =>
+        old?.filter((u) => u._id !== userId)
+      );
+      const deletedUser = queryClient.getQueryData<User[]>(["admin", "users"])?.find((u) => u._id === userId);
+      toast.success(`Đã xóa user "${deletedUser?.name || deletedUser?.email || userId}"`);
+    },
+    onError: (err: unknown) => {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      toast.error(axiosErr?.response?.data?.message || "Không thể xóa user");
+    },
+  });
+
   return {
     users: data,
     isLoading,
     error,
     updateRole: updateRoleMutation.mutateAsync,
     updateUser: updateUserMutation.mutateAsync,
+    deleteUser: deleteUserMutation.mutateAsync,
     isUpdatingRole: updateRoleMutation.isPending,
     isUpdatingUser: updateUserMutation.isPending,
+    isDeletingUser: deleteUserMutation.isPending,
   };
 }
