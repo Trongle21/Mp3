@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Volume2, Volume1, VolumeX } from "lucide-react";
 import { usePlayerStore } from "@/stores/player.store";
 
 export function VolumeControl() {
   const setVolume = usePlayerStore((s) => s.setVolume);
-  const [volume, setLocalVolume] = useState(0.7);
-  const [prevVolume, setPrevVolume] = useState(0.7);
+  const [volume, setLocalVolume] = useState(1);
+  const [prevVolume, setPrevVolume] = useState(1);
+
+  useEffect(() => {
+    const audio = document.querySelector("audio");
+    if (audio) setLocalVolume(audio.volume);
+  }, []);
 
   const handleChange = (value: number) => {
     setLocalVolume(value);
@@ -27,7 +32,11 @@ export function VolumeControl() {
 
   return (
     <div className="flex items-center gap-2">
-      <button onClick={toggleMute} aria-label="Mute" className="text-text-secondary hover:text-text-primary">
+      <button
+        onClick={toggleMute}
+        aria-label="Mute"
+        className="text-text-secondary hover:text-text-primary"
+      >
         <Icon className="h-4 w-4" />
       </button>
       <input

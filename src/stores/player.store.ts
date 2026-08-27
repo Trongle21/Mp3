@@ -59,6 +59,7 @@ type PlayheadListener = (currentTime: number, duration: number) => void;
 const playheadListeners = new Set<PlayheadListener>();
 let rafId: number | null = null;
 let lastDispatchedTime = -1;
+let onEndedCallback: (() => void) | null = null;
 
 function getAudioElement(): HTMLAudioElement {
   if (typeof window === "undefined") {
@@ -67,8 +68,15 @@ function getAudioElement(): HTMLAudioElement {
   if (!audioEl) {
     audioEl = new Audio();
     audioEl.preload = "metadata";
+    audioEl.addEventListener("ended", () => {
+      onEndedCallback?.();
+    });
   }
   return audioEl;
+}
+
+export function setOnEndedCallback(fn: (() => void) | null) {
+  onEndedCallback = fn;
 }
 
 function revokeCurrentObjectUrl() {
@@ -344,6 +352,19 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     };
 
     if (isNewTrack) {
+      // Set up ended callback for repeat functionality
+      setOnEndedCallback(() => {
+        const { state } = get();
+        if (state.repeatMode === "one" && state.currentTrack) {
+          // Repeat current track: seek to 0 and play again
+          const audio = getAudioElement();
+          audio.currentTime = 0;
+          audio.play().catch(console.error);
+        } else {
+          // Next track or repeat all
+          get().next();
+        }
+      });
       loadAndPlay(targetTrack, 0).then(() => apply(0));
     } else if (audioEl && !audioEl.paused) {
       apply(audioEl.currentTime || 0);
@@ -419,7 +440,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       nextIndex = Math.floor(Math.random() * state.queue.length);
     } else if (nextIndex >= state.queue.length) {
       if (state.repeatMode === "all") nextIndex = 0;
-      else return;
+      else nextIndex = 0; // restart from beginning when at end
     }
 
     get().play(state.queue[nextIndex]);

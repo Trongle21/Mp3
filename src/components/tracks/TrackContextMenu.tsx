@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Trash2, ListPlus, ChevronLeft } from "lucide-react";
+import { Pencil, Trash2, ListPlus, ChevronLeft, Disc } from "lucide-react";
 import { toast } from "sonner";
 import type { Track } from "@/interfaces/track.interface";
 import { useDeleteTrack } from "@/hooks/useTracks";
 import { useGroups, useAddTrackToGroup } from "@/hooks/useGroups";
+import { useAlbums, useAddTrackToAlbum } from "@/hooks/useAlbums";
+import * as albumsApi from "@/lib/api-albums";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -26,12 +28,14 @@ export function TrackContextMenu({
 }: TrackContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [showGroups, setShowGroups] = useState(false);
+  const [showAlbums, setShowAlbums] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
   const { user } = useAuth();
   const isAdmin = user?.isAdmin === "master" || user?.isAdmin === "normal";
 
   const { data: groups } = useGroups();
+  const { data: albums } = useAlbums();
   const deleteTrack = useDeleteTrack();
 
   useEffect(() => {
@@ -44,7 +48,7 @@ export function TrackContextMenu({
   }, [onClose, showDelete]);
 
   const menuStyle = {
-    top: Math.min(y, window.innerHeight - 220),
+    top: Math.min(y, window.innerHeight - 280),
     left: Math.min(x, window.innerWidth - 220),
   };
 
@@ -55,7 +59,7 @@ export function TrackContextMenu({
         style={menuStyle}
         className="fixed z-30 w-52 rounded-lg border border-border bg-bg-elevated py-1 shadow-xl animate-fade-slide-in"
       >
-        {!showGroups ? (
+        {!showGroups && !showAlbums ? (
           <>
             {isAdmin && (
               <>
@@ -69,12 +73,17 @@ export function TrackContextMenu({
               </>
             )}
             <MenuItem
+              icon={Disc}
+              label={track.album ? "Move to album" : "Add to album"}
+              onClick={() => setShowAlbums(true)}
+            />
+            <MenuItem
               icon={ListPlus}
               label="Add to group"
               onClick={() => setShowGroups(true)}
             />
           </>
-        ) : (
+        ) : showGroups ? (
           <div className="max-h-48 overflow-y-auto">
             <button
               onClick={() => setShowGroups(false)}
@@ -97,6 +106,53 @@ export function TrackContextMenu({
                 onDone={onClose}
               />
             ))}
+          </div>
+        ) : (
+          <div className="max-h-48 overflow-y-auto">
+            <button
+              onClick={() => setShowAlbums(false)}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-caption text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
+            {track.album && (
+              <button
+                onClick={async () => {
+                  console.log(track, "track");
+                  try {
+                    await albumsApi.removeTrackFromAlbum(
+                      track.album,
+                      track._id,
+                    );
+                    toast.success("Removed from album");
+                    onClose();
+                  } catch {
+                    toast.error("Couldn't remove from album");
+                  }
+                }}
+                className="flex w-full items-center px-3 py-2 text-left text-caption text-danger transition-colors hover:bg-bg-highlight"
+              >
+                Remove from current album
+              </button>
+            )}
+            {(albums?.data ?? []).length === 0 && (
+              <p className="px-3 py-2 text-caption text-text-muted">
+                No albums yet
+              </p>
+            )}
+            {(albums?.data ?? []).map(
+              (album: { _id: string; title: string }) => (
+                <AddToAlbumItem
+                  key={album._id}
+                  albumId={album._id}
+                  title={album.title}
+                  trackId={track._id}
+                  currentAlbumId={track.album}
+                  onDone={onClose}
+                />
+              ),
+            )}
           </div>
         )}
       </div>
@@ -172,6 +228,54 @@ function AddToGroupItem({
       className="flex w-full items-center px-3 py-2 text-left text-caption text-text-primary transition-colors hover:bg-bg-highlight"
     >
       {name}
+    </button>
+  );
+}
+
+function AddToAlbumItem({
+  albumId,
+  title,
+  trackId,
+  currentAlbumId,
+  onDone,
+}: {
+  albumId: string;
+  title: string;
+  trackId: string;
+  currentAlbumId?: string;
+  onDone: () => void;
+}) {
+  const addTrack = useAddTrackToAlbum(albumId);
+  const isCurrent = currentAlbumId === albumId;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleAdd = async () => {
+    if (isCurrent || isLoading) return;
+    setIsLoading(true);
+    try {
+      // If track already in another album, remove it first
+      if (currentAlbumId && currentAlbumId !== albumId) {
+        await albumsApi.removeTrackFromAlbum(currentAlbumId, trackId);
+      }
+      await addTrack.mutateAsync(trackId);
+      toast.success(`Moved to ${title}`);
+      onDone();
+    } catch {
+      toast.error("Couldn't move track to album");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleAdd}
+      disabled={isCurrent || isLoading}
+      className={`flex w-full items-center px-3 py-2 text-left text-caption transition-colors hover:bg-bg-highlight ${
+        isCurrent ? "text-text-muted" : "text-text-primary"
+      }`}
+    >
+      {isCurrent ? `${title} (current)` : title}
     </button>
   );
 }
