@@ -20,6 +20,7 @@ export function GroupCard({ group }: { group: Group }) {
   const deleteGroup = useDeleteGroupInline();
 
   const covers = group?.tracks?.slice(0, 4).map((t) => t.track);
+  const hasThumbnail = !!group?.thumbnailUrl;
 
   const playAll = () => {
     if (covers?.length === 0 && group?.tracks?.length === 0) return;
@@ -32,28 +33,39 @@ export function GroupCard({ group }: { group: Group }) {
     <>
       <div className="group relative rounded-lg p-3 transition-colors hover:bg-bg-elevated">
         <Link href={`/groups/${group._id}`}>
-          <div className="relative grid aspect-square grid-cols-2 grid-rows-2 overflow-hidden rounded-md bg-bg-highlight">
-            {covers?.length > 0 ? (
-              covers?.map((track, i) => (
-                <div key={i} className="relative">
-                  {track?.coverKey ? (
-                    <Image
-                      src={coverUrl(track?.coverKey)}
-                      alt=""
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated text-text-muted">
-                      <span className="text-2xl font-semibold text-text-secondary">
-                        {coverInitial(track?.title)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))
+          <div className="relative aspect-square overflow-hidden rounded-md bg-bg-highlight">
+            {hasThumbnail ? (
+              <Image
+                src={group.thumbnailUrl!}
+                alt={group.name}
+                fill
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                className="object-cover"
+              />
+            ) : covers?.length > 0 ? (
+              <div className="grid h-full w-full grid-cols-2 grid-rows-2">
+                {covers.map((track, i) => (
+                  <div key={i} className="relative">
+                    {track?.coverKey ? (
+                      <Image
+                        src={coverUrl(track.coverKey)}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 13vw, (min-width: 640px) 17vw, 25vw"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated text-text-muted">
+                        <span className="text-2xl font-semibold text-text-secondary">
+                          {coverInitial(track?.title)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             ) : (
-              <div className="col-span-2 row-span-2 flex items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated text-text-muted">
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated text-text-muted">
                 <span className="text-3xl font-semibold text-text-secondary">
                   {coverInitial(group?.name)}
                 </span>

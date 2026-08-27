@@ -10,7 +10,8 @@ export interface Group {
   _id: string;
   name: string;
   owner: string;
-  thumbnailKey?: string;
+  /** Direct URL to the group's thumbnail (R2 public). Only present when a thumbnail has been set. */
+  thumbnailUrl?: string;
   tracks: GroupTrackItem[];
   trackCount: number;
   createdAt: string;

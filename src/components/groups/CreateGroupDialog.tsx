@@ -20,8 +20,7 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
   const [submitting, setSubmitting] = useState(false);
   const queryClient = useQueryClient();
 
-  // Reset state every time the dialog closes so a previously picked image
-  // doesn't leak into the next session.
+  // Reset state every time the dialog closes so reopening is clean.
   useEffect(() => {
     if (!open) {
       setName("");
@@ -35,17 +34,17 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
     if (!trimmed) return;
     setSubmitting(true);
     try {
-      // Step 1: create the group with just the name.
-      const { data: group } = (await createGroup(trimmed)).data;
+      // Step 1: create the group.
+      const { data: created } = await createGroup(trimmed);
 
-      // Step 2: upload the thumbnail if one was picked. Best-effort: a failure
-      // here doesn't roll back the group that was already created.
+      // Step 2: upload the thumbnail (best-effort). The group itself is already
+      // saved; failure here shouldn't roll back the creation.
       if (thumbnailFile) {
         try {
-          await uploadGroupThumbnail(group._id, thumbnailFile);
+          await uploadGroupThumbnail(created.data._id, thumbnailFile);
         } catch (err) {
           console.warn("Thumbnail upload failed:", err);
-          toast.warning("Group created, but the thumbnail couldn't be saved.");
+          toast.warning("Group created, but the cover image couldn't be saved.");
         }
       }
 
@@ -63,8 +62,10 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 animate-fade-slide-in" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-bg-secondary p-6 animate-fade-slide-in mx-4"
-          style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
+        <Dialog.Content
+          className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-bg-secondary p-6 animate-fade-slide-in mx-4"
+          style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+        >
           <Dialog.Title className="text-h3 text-text-primary">New group</Dialog.Title>
           <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
             <Input
@@ -76,8 +77,7 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
             <ImagePicker
               file={thumbnailFile}
               onChange={setThumbnailFile}
-              label="Thumbnail (optional)"
-              size={72}
+              label="Cover image (optional)"
               disabled={submitting}
             />
             <div className="flex justify-end gap-3">
@@ -86,10 +86,7 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
                   Cancel
                 </Button>
               </Dialog.Close>
-              <Button
-                type="submit"
-                disabled={!name.trim() || submitting}
-              >
+              <Button type="submit" disabled={!name.trim() || submitting}>
                 {submitting ? "Creating…" : "Create"}
               </Button>
             </div>
