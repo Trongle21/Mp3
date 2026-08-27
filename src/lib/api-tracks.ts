@@ -27,3 +27,15 @@ export const deleteTrack = (id: string) =>
 
 export const streamTrackUrl = (id: string) =>
   `${process.env.NEXT_PUBLIC_API_URL}/tracks/${id}/stream`;
+
+/**
+ * Downloads the audio blob for a track. The Authorization header is added by the
+ * axios interceptor (including the 401 -> refresh -> retry flow). Returns a Blob
+ * whose object URL can be assigned to an <audio> element's `src`.
+ */
+export const fetchTrackStream = async (id: string): Promise<Blob> => {
+  const res = await api.get<Blob>(`/tracks/${id}/stream`, {
+    responseType: "blob",
+  });
+  return res.data;
+};

@@ -19,11 +19,11 @@ export function GroupCard({ group }: { group: Group }) {
   const [showRename, setShowRename] = useState(false);
   const deleteGroup = useDeleteGroupInline();
 
-  const covers = group.tracks.slice(0, 4).map((t) => t.track);
+  const covers = group?.tracks?.slice(0, 4).map((t) => t.track);
 
   const playAll = () => {
-    if (covers.length === 0 && group.tracks.length === 0) return;
-    const tracks = group.tracks.map((t) => t.track);
+    if (covers?.length === 0 && group?.tracks?.length === 0) return;
+    const tracks = group?.tracks?.map((t) => t.track);
     setQueue(tracks);
     play(tracks[0]);
   };
@@ -33,11 +33,16 @@ export function GroupCard({ group }: { group: Group }) {
       <div className="group relative rounded-lg p-3 transition-colors hover:bg-bg-elevated">
         <Link href={`/groups/${group._id}`}>
           <div className="relative grid aspect-square grid-cols-2 grid-rows-2 overflow-hidden rounded-md bg-bg-highlight">
-            {covers.length > 0 ? (
-              covers.map((track, i) => (
+            {covers?.length > 0 ? (
+              covers?.map((track, i) => (
                 <div key={i} className="relative">
-                  {track.coverKey ? (
-                    <Image src={coverUrl(track.coverKey)} alt="" fill className="object-cover" />
+                  {track?.coverKey ? (
+                    <Image
+                      src={coverUrl(track?.coverKey)}
+                      alt=""
+                      fill
+                      className="object-cover"
+                    />
                   ) : (
                     <div className="h-full w-full bg-bg-highlight" />
                   )}
@@ -49,8 +54,12 @@ export function GroupCard({ group }: { group: Group }) {
               </div>
             )}
           </div>
-          <p className="mt-3 truncate text-body font-medium text-text-primary">{group.name}</p>
-          <p className="text-caption text-text-secondary">{group.trackCount} tracks</p>
+          <p className="mt-3 truncate text-body font-medium text-text-primary">
+            {group?.name}
+          </p>
+          <p className="text-caption text-text-secondary">
+            {group?.trackCount} tracks
+          </p>
         </Link>
 
         <button
@@ -58,7 +67,7 @@ export function GroupCard({ group }: { group: Group }) {
             e.preventDefault();
             playAll();
           }}
-          aria-label={`Play ${group.name}`}
+          aria-label={`Play ${group?.name}`}
           className="absolute bottom-16 right-5 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-accent text-black opacity-0 shadow-lg transition-all hover:scale-105 hover:bg-accent-hover group-hover:translate-y-0 group-hover:opacity-100"
         >
           <Play className="ml-0.5 h-4 w-4" />
@@ -101,13 +110,17 @@ export function GroupCard({ group }: { group: Group }) {
         )}
       </div>
 
-      <RenameGroupDialog open={showRename} onOpenChange={setShowRename} group={group} />
+      <RenameGroupDialog
+        open={showRename}
+        onOpenChange={setShowRename}
+        group={group}
+      />
 
       <ConfirmDialog
         open={showDelete}
         onOpenChange={setShowDelete}
         title="Delete group"
-        description={`"${group.name}" will be deleted. Tracks stay in your library.`}
+        description={`"${group?.name}" will be deleted. Tracks stay in your library.`}
         confirmLabel="Delete"
         onConfirm={() =>
           deleteGroup.mutate(group._id, {
