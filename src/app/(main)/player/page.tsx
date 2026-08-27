@@ -31,7 +31,7 @@ export default function NowPlayingPage() {
   const bgUrl = currentTrack.coverKey ? coverUrl(currentTrack.coverKey) : null;
 
   return (
-    <div className="relative -mx-8 -mt-4 flex min-h-[calc(100vh-90px)] flex-col overflow-hidden pb-12">
+    <div className="relative -mx-4 -mt-4 flex min-h-[calc(100vh-160px)] flex-col overflow-hidden pb-8 sm:-mx-6 sm:min-h-[calc(100vh-90px)] sm:pb-12 lg:-mx-8">
       {bgUrl && (
         <div
           className="absolute inset-0 scale-110 bg-cover bg-center opacity-40 blur-3xl"
@@ -40,7 +40,7 @@ export default function NowPlayingPage() {
       )}
       <div className="absolute inset-0 bg-bg-primary/60" />
 
-      <div className="relative z-10 flex items-center px-8 py-4">
+      <div className="relative z-10 flex items-center px-4 py-4 sm:px-6 lg:px-8">
         <Link
           href="/library"
           aria-label="Back"
@@ -50,14 +50,13 @@ export default function NowPlayingPage() {
         </Link>
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-8">
-        <div className="h-[min(45vh,500px)] w-[min(45vh,500px)] shrink-0 overflow-hidden rounded-lg shadow-2xl">
-          {bgUrl ? (
+      <div className="relative z-10 mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-4 sm:px-8">
+        <div className="relative h-[min(55vw,320px)] w-[min(55vw,320px)] shrink-0 overflow-hidden rounded-lg shadow-2xl sm:h-[min(45vh,500px)] sm:w-[min(45vh,500px)]">
+          {currentTrack.coverKey ? (
             <Image
-              src={bgUrl}
+              src={coverUrl(currentTrack.coverKey)}
               alt={currentTrack.title}
-              width={500}
-              height={500}
+              fill
               className="h-full w-full object-cover"
             />
           ) : (

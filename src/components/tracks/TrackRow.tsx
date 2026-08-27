@@ -25,7 +25,7 @@ export function TrackRow({
   return (
     <div
       onDoubleClick={onPlay}
-      className="group grid grid-cols-[32px_1fr_1fr_80px_32px] items-center gap-4 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated"
+      className="group grid grid-cols-[32px_40px_1fr_80px_32px] items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-4 lg:grid-cols-[32px_1fr_1fr_80px_32px]"
     >
       <button
         onClick={onPlay}
@@ -50,9 +50,9 @@ export function TrackRow({
         </span>
       </button>
 
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <CoverThumb
-          coverKey={track.coverKey}
+          trackId={track._id}
           title={track.title}
           size={40}
           className="rounded"
@@ -69,15 +69,16 @@ export function TrackRow({
         </div>
       </div>
 
-      <p className="truncate text-caption text-text-secondary">{track.album}</p>
-      <p className="text-caption text-text-secondary">
+      {/* Album: hidden on mobile */}
+      <p className="hidden truncate text-caption text-text-secondary lg:block">{track.album}</p>
+      <p className="hidden text-caption text-text-secondary lg:block">
         {formatDuration(track.durationSec)}
       </p>
 
       <button
         onClick={onOpenMenu}
         aria-label="More options"
-        className="flex h-6 w-6 items-center justify-center text-text-muted opacity-0 transition-opacity hover:text-text-primary group-hover:opacity-100"
+        className="flex h-8 w-8 items-center justify-center text-text-muted opacity-0 transition-opacity hover:text-text-primary group-hover:opacity-100"
       >
         <MoreHorizontal className="h-4 w-4" />
       </button>

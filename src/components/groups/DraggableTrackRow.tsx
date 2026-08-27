@@ -45,13 +45,14 @@ export function DraggableTrackRow({
     <div
       ref={setNodeRef}
       style={style}
-      className="group grid grid-cols-[24px_32px_1fr_80px_32px] items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated"
+      className="group grid grid-cols-[24px_40px_1fr_80px_32px] items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-3 lg:grid-cols-[24px_32px_1fr_80px_32px]"
     >
+      {/* Drag handle — hidden on mobile where touch-drag is hard */}
       <button
         {...attributes}
         {...listeners}
         aria-label="Drag to reorder"
-        className="cursor-grab text-text-muted opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+        className="hidden cursor-grab text-text-muted opacity-0 transition-opacity active:cursor-grabbing sm:flex lg:opacity-0 group-hover:opacity-100"
       >
         <GripVertical className="h-4 w-4" />
       </button>
@@ -75,9 +76,9 @@ export function DraggableTrackRow({
         </span>
       </button>
 
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <CoverThumb
-          coverKey={item.track.coverKey}
+          trackId={item.track._id}
           title={item.track.title}
           size={40}
           className="rounded"
@@ -94,14 +95,15 @@ export function DraggableTrackRow({
         </div>
       </div>
 
-      <p className="text-caption text-text-secondary">
+      <p className="hidden text-caption text-text-secondary sm:block">
         {formatDuration(item.track.durationSec)}
       </p>
 
+      {/* Remove: hidden on mobile, long-press on mobile would be alternative */}
       <button
         onClick={onRemove}
         aria-label="Remove from group"
-        className="flex h-6 w-6 items-center justify-center text-text-muted opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
+        className="hidden h-6 w-6 items-center justify-center text-text-muted opacity-0 transition-opacity hover:text-danger group-hover:flex group-hover:opacity-100 lg:flex"
       >
         <X className="h-4 w-4" />
       </button>

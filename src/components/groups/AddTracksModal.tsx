@@ -28,10 +28,11 @@ export function AddTracksModal({ open, onOpenChange, groupId, existingTrackIds }
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 animate-fade-slide-in" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex h-[70vh] w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl border border-border bg-bg-secondary p-6 animate-fade-slide-in">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex h-[70vh] w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl border border-border bg-bg-secondary p-6 animate-fade-slide-in mx-4"
+          style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="text-h3 text-text-primary">Add tracks</Dialog.Title>
-            <Dialog.Close className="text-text-muted hover:text-text-primary">
+            <Dialog.Close className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted hover:bg-bg-highlight hover:text-text-primary">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>

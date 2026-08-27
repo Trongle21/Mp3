@@ -26,7 +26,8 @@ export function ConfirmDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 animate-fade-slide-in" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-bg-secondary p-6 animate-fade-slide-in">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-bg-secondary p-6 animate-fade-slide-in mx-4"
+          style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
           <Dialog.Title className="text-h3 text-text-primary">{title}</Dialog.Title>
           <Dialog.Description className="mt-2 text-body text-text-secondary">
             {description}

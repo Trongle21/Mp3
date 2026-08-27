@@ -10,9 +10,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     <AuthGuard>
       <PlayerInit />
       <Sidebar />
-      <div className="ml-sidebar min-h-screen pb-player">
+      <div className="min-h-screen pb-[calc(80px+env(safe-area-inset-bottom))] lg:ml-sidebar lg:pb-[calc(90px+env(safe-area-inset-bottom))]">
         <Header />
-        <main className="px-8 pb-8">{children}</main>
+        <main className="px-4 pb-8 sm:px-6 lg:px-8 lg:pb-8">{children}</main>
       </div>
       <PlayerBar />
       <ResumeBar />

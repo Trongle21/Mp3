@@ -26,7 +26,8 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
 
   return (
     <div onContextMenu={(e) => e.preventDefault()}>
-      <div className="grid grid-cols-[32px_1fr_1fr_80px_32px] gap-4 border-b border-border px-3 pb-2 text-caption text-text-muted">
+      {/* Desktop header: full columns */}
+      <div className="hidden grid-cols-[32px_1fr_1fr_80px_32px] gap-4 border-b border-border px-3 pb-2 text-caption text-text-muted lg:grid">
         <span>#</span>
         <span>Title</span>
         <span>Album</span>

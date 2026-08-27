@@ -112,15 +112,18 @@ export default function GroupDetailPage() {
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={orderedItems.map((i) => i.track._id)} strategy={verticalListSortingStrategy}>
-            <div className="grid grid-cols-[24px_32px_1fr_80px_32px] gap-3 border-b border-border px-3 pb-2 text-caption text-text-muted">
+            <div className="hidden grid-cols-[24px_32px_1fr_80px_32px] gap-3 border-b border-border px-3 pb-2 text-caption text-text-muted lg:grid">
               <span />
               <span>#</span>
               <span>Title</span>
               <span>Duration</span>
               <span />
             </div>
-            <div className="mt-1">
-              {orderedItems.map((item, index) => (
+            {/* Mobile: no header columns — just the # in each row */}
+            <div className="mb-1 px-3 pb-1 text-caption text-text-muted sm:hidden">
+              <span>#</span>
+            </div>
+            {orderedItems.map((item, index) => (
                 <DraggableTrackRow
                   key={item.track._id}
                   item={item}
@@ -131,7 +134,6 @@ export default function GroupDetailPage() {
                   onRemove={() => removeTrack.mutate(item.track._id)}
                 />
               ))}
-            </div>
           </SortableContext>
         </DndContext>
       )}

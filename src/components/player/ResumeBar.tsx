@@ -2,7 +2,6 @@
 
 import { Play, X } from "lucide-react";
 import { usePlayerStore } from "@/stores/player.store";
-import { coverUrl, formatDuration } from "@/lib/utils";
 
 export function ResumeBar() {
   const pending = usePlayerStore((s) => s.pendingResume);
@@ -12,39 +11,36 @@ export function ResumeBar() {
   if (!pending) return null;
 
   const { track, positionSec } = pending;
-  const cover = track.coverKey ? coverUrl(track.coverKey) : null;
 
   return (
-    <div className="fixed bottom-[90px] left-0 right-0 z-30 border-t border-bg-highlight bg-bg-elevated/95 backdrop-blur md:left-sidebar">
-      <div className="mx-auto flex max-w-4xl items-center gap-4 px-6 py-3">
-        <div className="h-12 w-12 shrink-0 overflow-hidden rounded bg-bg-highlight">
-          {cover ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={cover} alt={track.title} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-text-muted">
-              <Play className="h-5 w-5" />
-            </div>
-          )}
+    <div
+      className="fixed bottom-[81px] sm:bottom-[91px] left-0 right-0 z-30 border-t border-bg-highlight bg-bg-elevated/95 backdrop-blur md:left-sidebar"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-2 sm:gap-4 sm:px-6 sm:py-3">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-bg-highlight">
+          <div className="flex h-full w-full items-center justify-center text-text-muted">
+            <Play className="h-5 w-5" />
+          </div>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-body text-text-primary">Resume &ldquo;{track.title}&rdquo;?</p>
+          <p className="truncate text-caption text-text-primary">Resume &ldquo;{track.title}&rdquo;?</p>
           <p className="truncate text-caption text-text-muted">
             {track.artist}
-            {positionSec > 0 ? ` · at ${formatDuration(positionSec)}` : ""}
+            {positionSec > 0 ? ` · at ${positionSec}s` : ""}
           </p>
         </div>
         <button
           onClick={() => accept()}
-          className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-body font-medium text-black hover:scale-105"
+          className="flex shrink-0 items-center gap-2 rounded-full bg-accent px-3 py-1.5 text-caption font-medium text-black transition-transform hover:scale-105 hover:bg-accent-hover sm:px-4 sm:py-2"
         >
-          <Play className="h-4 w-4 fill-black" />
-          Resume
+          <Play className="h-3.5 w-3.5 fill-black sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Resume</span>
         </button>
         <button
           onClick={() => dismiss()}
           aria-label="Dismiss"
-          className="rounded-full p-2 text-text-muted hover:text-text-primary"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
         >
           <X className="h-4 w-4" />
         </button>
