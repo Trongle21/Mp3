@@ -10,6 +10,7 @@ export interface Group {
   _id: string;
   name: string;
   owner: string;
+  thumbnailKey?: string;
   tracks: GroupTrackItem[];
   trackCount: number;
   createdAt: string;

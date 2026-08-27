@@ -25,6 +25,17 @@ export const updateTrack = (id: string, body: Partial<Pick<Track, "title" | "art
 export const deleteTrack = (id: string) =>
   api.delete<ApiSuccess<{ id: string }>>(`/tracks/${id}`);
 
+export const uploadTrackCover = (id: string, file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api.post<ApiSuccess<Track>>(`/tracks/${id}/cover`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export const deleteTrackCover = (id: string) =>
+  api.delete<ApiSuccess<Track>>(`/tracks/${id}/cover`);
+
 export const streamTrackUrl = (id: string) =>
   `${process.env.NEXT_PUBLIC_API_URL}/tracks/${id}/stream`;
 

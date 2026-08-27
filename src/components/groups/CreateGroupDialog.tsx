@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useCreateGroup } from "@/hooks/useGroups";
+import { ImagePicker } from "@/components/shared/ImagePicker";
+import { createGroup, uploadGroupThumbnail } from "@/lib/api-groups";
 
 interface CreateGroupDialogProps {
   open: boolean;
@@ -14,19 +16,47 @@ interface CreateGroupDialogProps {
 
 export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps) {
   const [name, setName] = useState("");
-  const createGroup = useCreateGroup();
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Reset state every time the dialog closes so a previously picked image
+  // doesn't leak into the next session.
+  useEffect(() => {
+    if (!open) {
+      setName("");
+      setThumbnailFile(null);
+    }
+  }, [open]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    createGroup.mutate(name.trim(), {
-      onSuccess: () => {
-        toast.success("Group created");
-        setName("");
-        onOpenChange(false);
-      },
-      onError: () => toast.error("Couldn't create group"),
-    });
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setSubmitting(true);
+    try {
+      // Step 1: create the group with just the name.
+      const { data: group } = (await createGroup(trimmed)).data;
+
+      // Step 2: upload the thumbnail if one was picked. Best-effort: a failure
+      // here doesn't roll back the group that was already created.
+      if (thumbnailFile) {
+        try {
+          await uploadGroupThumbnail(group._id, thumbnailFile);
+        } catch (err) {
+          console.warn("Thumbnail upload failed:", err);
+          toast.warning("Group created, but the thumbnail couldn't be saved.");
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      toast.success("Group created");
+      onOpenChange(false);
+    } catch {
+      toast.error("Couldn't create group");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -42,14 +72,24 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+            <ImagePicker
+              file={thumbnailFile}
+              onChange={setThumbnailFile}
+              label="Thumbnail (optional)"
+              size={72}
+              disabled={submitting}
+            />
             <div className="flex justify-end gap-3">
               <Dialog.Close asChild>
-                <Button type="button" variant="ghost">
+                <Button type="button" variant="ghost" disabled={submitting}>
                   Cancel
                 </Button>
               </Dialog.Close>
-              <Button type="submit" disabled={!name.trim() || createGroup.isPending}>
-                Create
+              <Button
+                type="submit"
+                disabled={!name.trim() || submitting}
+              >
+                {submitting ? "Creating…" : "Create"}
               </Button>
             </div>
           </form>

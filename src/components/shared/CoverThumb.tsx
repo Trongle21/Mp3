@@ -36,7 +36,11 @@ export function CoverThumb({
       >
         <span
           className="font-semibold text-text-secondary"
-          style={fill ? undefined : { fontSize: Math.max(12, Math.round(size * 0.4)) }}
+          style={
+            fill
+              ? undefined
+              : { fontSize: Math.max(12, Math.round(size * 0.4)) }
+          }
         >
           {coverInitial(title)}
         </span>

@@ -14,6 +14,17 @@ export const updateGroup = (id: string, name: string) =>
 
 export const deleteGroup = (id: string) => api.delete<ApiSuccess<{ id: string }>>(`/groups/${id}`);
 
+export const uploadGroupThumbnail = (id: string, file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api.post<ApiSuccess<Group>>(`/groups/${id}/thumbnail`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export const deleteGroupThumbnail = (id: string) =>
+  api.delete<ApiSuccess<Group>>(`/groups/${id}/thumbnail`);
+
 export const addTrackToGroup = (groupId: string, trackId: string) =>
   api.post<ApiSuccess<{ position: number; message?: string }>>(`/groups/${groupId}/tracks`, {
     trackId,

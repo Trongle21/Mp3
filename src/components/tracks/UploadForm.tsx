@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { uploadTrack } from "@/lib/api-tracks";
+import { ImagePicker } from "@/components/shared/ImagePicker";
+import { uploadTrack, uploadTrackCover } from "@/lib/api-tracks";
 import { cn } from "@/lib/utils";
 
 interface UploadFormProps {
@@ -18,6 +19,7 @@ export function UploadForm({ onDone }: UploadFormProps) {
   const queryClient = useQueryClient();
 
   const [file, setFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -43,13 +45,26 @@ export function UploadForm({ onDone }: UploadFormProps) {
     if (!file) return;
     setIsUploading(true);
     try {
+      // Step 1: upload audio + metadata.
       const formData = new FormData();
       formData.append("file", file);
       if (meta.title) formData.append("title", meta.title);
       if (meta.artist) formData.append("artist", meta.artist);
       if (meta.album) formData.append("album", meta.album);
 
-      await uploadTrack(formData, setProgress);
+      const { data: track } = (await uploadTrack(formData, setProgress)).data;
+
+      // Step 2: upload cover art (best-effort). The track itself is already
+      // created; a failure here shouldn't roll back the upload.
+      if (coverFile) {
+        try {
+          await uploadTrackCover(track._id, coverFile);
+        } catch (err) {
+          console.warn("Cover upload failed:", err);
+          toast.warning("Track uploaded, but the cover image couldn't be saved.");
+        }
+      }
+
       queryClient.invalidateQueries({ queryKey: ["tracks"] });
       toast.success("Track uploaded");
       onDone();
@@ -117,6 +132,13 @@ export function UploadForm({ onDone }: UploadFormProps) {
         onChange={(e) => setMeta((m) => ({ ...m, album: e.target.value }))}
       />
 
+      <ImagePicker
+        file={coverFile}
+        onChange={setCoverFile}
+        label="Cover image (optional)"
+        disabled={isUploading}
+      />
+
       {isUploading && (
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-highlight">
           <div
@@ -127,7 +149,14 @@ export function UploadForm({ onDone }: UploadFormProps) {
       )}
 
       <div className="flex justify-end gap-3 pt-2">
-        <Button variant="ghost" onClick={() => setFile(null)} disabled={isUploading}>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            setFile(null);
+            setCoverFile(null);
+          }}
+          disabled={isUploading}
+        >
           Choose another
         </Button>
         <Button onClick={handleUpload} disabled={isUploading}>
