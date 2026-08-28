@@ -26,7 +26,7 @@ export function EditUserModal({ user, onClose, onSave, onSubmit, isSaving }: Edi
       birthdate: form.birthdate,
       gender: form.gender,
     });
-    onSave({ ...user, ...form, birthdate: form.birthdate || null, gender: form.gender || null });
+    onSave({ ...user, ...form, birthdate: form.birthdate || null, gender: (form.gender || null) as "male" | "female" | "other" | null });
     onClose();
   };
 

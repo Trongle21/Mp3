@@ -1,7 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import {
   Library,
@@ -33,6 +34,7 @@ export function Sidebar() {
   const { user, logout } = useAuth();
   const open = useSidebarStore((s) => s.open);
   const setOpen = useSidebarStore((s) => s.setOpen);
+  const router = useRouter();
 
   // Close the drawer automatically on route change so it doesn't stay open
   // when users tap a link. Desktop doesn't care because the drawer is hidden.
@@ -104,20 +106,6 @@ export function Sidebar() {
             );
           })}
 
-          {/* Profile link */}
-          <Link
-            href="/profile"
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors",
-              pathname?.startsWith("/profile")
-                ? "bg-bg-highlight text-text-primary"
-                : "text-text-secondary hover:text-text-primary",
-            )}
-          >
-            <User className="h-5 w-5" />
-            Profile
-          </Link>
-
           {/* Master-only section */}
           {user?.isAdmin === "master" && (
             <div className="pt-3">
@@ -137,11 +125,21 @@ export function Sidebar() {
 
         <div className="m-3 mt-0">
           <div className="flex items-center gap-3 rounded-lg bg-bg-elevated p-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-white">
-              {user?.name?.[0]?.toUpperCase() ??
-                user?.email?.[0]?.toUpperCase() ??
-                "?"}
-            </div>
+            {user?.avatarUrl ? (
+              <Link href="/profile">
+                <img
+                  src={user?.avatarUrl}
+                  alt="Avatar"
+                  className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-white"
+                />
+              </Link>
+            ) : (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-white">
+                {user?.name?.[0]?.toUpperCase() ??
+                  user?.email?.[0]?.toUpperCase() ??
+                  "?"}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-body font-medium text-text-primary">
                 {user?.name || "Guest"}

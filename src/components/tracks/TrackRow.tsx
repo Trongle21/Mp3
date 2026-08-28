@@ -14,6 +14,7 @@ import {
 import { CoverThumb } from "../shared/CoverThumb";
 import { EditTrackDialog } from "./EditTrackDialog";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { MusicVisualizer } from "@/components/player/MusicVisualizer";
 import { useDeleteTrack } from "@/hooks/useTracks";
 import { toast } from "sonner";
 
@@ -59,22 +60,22 @@ export function TrackRow({
     <>
       <div
         onDoubleClick={onPlay}
-        className="group grid items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-4 grid-cols-[40px_1fr_1fr_80px_auto] md:grid-cols-[32px_1fr_1fr_80px_auto]"
+        className="group grid items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-4 grid-cols-[32px_3fr_1fr_40px_auto] md:grid-cols-[32px_1fr_1fr_80px_auto]"
       >
         <button
           onClick={onPlay}
           aria-label={isActive && isPlaying ? "Pause" : "Play"}
           className="flex h-6 w-6 items-center justify-center text-text-secondary"
         >
-          <span className="group-hover:hidden">
-            {isActive && isPlaying ? (
-              <span className="text-accent">▶</span>
-            ) : (
+          {isActive && isPlaying ? (
+            <MusicVisualizer isPlaying={true} barCount={3} />
+          ) : (
+            <span className="group-hover:hidden">
               <span className={isActive ? "text-accent" : "text-text-muted"}>
                 {index + 1}
               </span>
-            )}
-          </span>
+            </span>
+          )}
           <span className="hidden group-hover:block text-text-primary">
             {isActive && isPlaying ? (
               <Pause className="h-4 w-4" />

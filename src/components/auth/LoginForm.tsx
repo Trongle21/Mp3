@@ -34,9 +34,13 @@ export function LoginForm() {
       if (isAxiosError(err) && err.response?.data) {
         const body = err.response.data;
         if (body.errors) {
-          body.errors.forEach((fieldError: { field: string; message: string }) => {
-            setError(fieldError.field as keyof LoginInput, { message: fieldError.message });
-          });
+          body.errors.forEach(
+            (fieldError: { field: string; message: string }) => {
+              setError(fieldError.field as keyof LoginInput, {
+                message: fieldError.message,
+              });
+            },
+          );
         } else {
           setServerError(body.message ?? "Something went wrong. Try again.");
         }
@@ -50,7 +54,12 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-      <Input placeholder="Email" type="email" {...register("email")} error={errors.email?.message} />
+      <Input
+        placeholder="Email"
+        type="email"
+        {...register("email")}
+        error={errors.email?.message}
+      />
       <Input
         placeholder="Password"
         type="password"
@@ -59,7 +68,11 @@ export function LoginForm() {
       />
 
       <label className="flex items-center gap-2 text-caption text-text-secondary">
-        <input type="checkbox" {...register("rememberMe")} className="accent-accent" />
+        <input
+          type="checkbox"
+          {...register("rememberMe")}
+          className="accent-accent"
+        />
         Remember me
       </label>
 
@@ -68,21 +81,6 @@ export function LoginForm() {
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Logging in…" : "Log in"}
       </Button>
-
-      <div className="flex items-center gap-3 py-2">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-caption text-text-muted">or</span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
-
-      <div className="space-y-2">
-        <Button type="button" variant="outline" className="w-full">
-          Continue with Google
-        </Button>
-        <Button type="button" variant="outline" className="w-full">
-          Continue with GitHub
-        </Button>
-      </div>
 
       <p className="pt-2 text-center text-caption text-text-secondary">
         New here?{" "}

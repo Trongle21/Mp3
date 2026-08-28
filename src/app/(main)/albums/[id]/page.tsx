@@ -12,7 +12,11 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -38,14 +42,21 @@ export default function AlbumDetailPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+  );
+
+  console.log(album, "album");
 
   const orderedItems = useMemo(
     () => (album?.tracks ?? []).slice().sort((a, b) => a.position - b.position),
-    [album]
+    [album],
   );
 
-  const totalDuration = orderedItems.reduce((sum, item) => sum + item.track.durationSec, 0);
+  const totalDuration = orderedItems.reduce(
+    (sum, item) => sum + item.track.durationSec,
+    0,
+  );
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -121,7 +132,9 @@ export default function AlbumDetailPage() {
           )}
         </div>
         <div className="flex flex-col justify-end">
-          <p className="text-caption uppercase tracking-wide text-text-muted">Album</p>
+          <p className="text-caption uppercase tracking-wide text-text-muted">
+            Album
+          </p>
           <h1 className="text-h1">{album.title}</h1>
           <p className="mt-1 text-body text-text-secondary">
             {album.artist || "Unknown Artist"}
@@ -215,15 +228,26 @@ interface AlbumTrackRowProps {
   onRemove: () => void;
 }
 
-function AlbumTrackRow({ item, index, isActive, isPlaying, onPlay, onRemove }: AlbumTrackRowProps) {
+function AlbumTrackRow({
+  item,
+  index,
+  isActive,
+  isPlaying,
+  onPlay,
+  onRemove,
+}: AlbumTrackRowProps) {
   return (
-    <div
-      className="group grid grid-cols-[24px_40px_1fr_80px_32px] items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-3 lg:grid-cols-[24px_32px_1fr_80px_32px]"
-    >
+    <div className="group grid grid-cols-[24px_40px_1fr_80px_32px] items-center gap-3 rounded-md px-3 py-2 text-body transition-colors hover:bg-bg-elevated sm:gap-3 lg:grid-cols-[24px_32px_1fr_80px_32px]">
       <div />
-      <button onClick={onPlay} aria-label={isActive && isPlaying ? "Pause" : "Play"} className="text-text-secondary">
+      <button
+        onClick={onPlay}
+        aria-label={isActive && isPlaying ? "Pause" : "Play"}
+        className="text-text-secondary"
+      >
         <span className="group-hover:hidden">
-          <span className={isActive ? "text-accent" : "text-text-muted"}>{index + 1}</span>
+          <span className={isActive ? "text-accent" : "text-text-muted"}>
+            {index + 1}
+          </span>
         </span>
         <span className="hidden group-hover:block text-text-primary">
           {isActive && isPlaying ? (
@@ -238,23 +262,40 @@ function AlbumTrackRow({ item, index, isActive, isPlaying, onPlay, onRemove }: A
       </button>
 
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-        <CoverThumb src={item.track.coverUrl} title={item.track.title} size={40} className="rounded" />
+        <CoverThumb
+          src={item.track.coverUrl}
+          title={item.track.title}
+          size={40}
+          className="rounded"
+        />
         <div className="min-w-0">
-          <p className={`truncate font-medium ${isActive ? "text-accent" : "text-text-primary"}`}>
+          <p
+            className={`truncate font-medium ${isActive ? "text-accent" : "text-text-primary"}`}
+          >
             {item.track.title}
           </p>
-          <p className="truncate text-caption text-text-secondary">{item.track.artist}</p>
+          <p className="truncate text-caption text-text-secondary">
+            {item.track.artist}
+          </p>
         </div>
       </div>
 
-      <p className="hidden text-caption text-text-secondary sm:block">{formatDuration(item.track.durationSec)}</p>
+      <p className="hidden text-caption text-text-secondary sm:block">
+        {formatDuration(item.track.durationSec)}
+      </p>
 
       <button
         onClick={onRemove}
         aria-label="Remove from album"
         className="hidden h-6 w-6 items-center justify-center text-text-muted opacity-0 transition-opacity hover:text-danger group-hover:flex group-hover:opacity-100 lg:flex"
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
         </svg>

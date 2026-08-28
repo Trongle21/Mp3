@@ -1,24 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { ChevronDown, Play, Heart } from "lucide-react";
-import { usePlayer } from "@/hooks/usePlayer";
-import { SeekBar } from "@/components/player/SeekBar";
+import { AudioVisualizer } from "@/components/player/AudioVisualizer";
 import { PlayerControls } from "@/components/player/PlayerControls";
-import { ShuffleButton } from "@/components/player/ShuffleButton";
 import { RepeatModeButton } from "@/components/player/RepeatModeButton";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { useState } from "react";
+import { SeekBar } from "@/components/player/SeekBar";
+import { ShuffleButton } from "@/components/player/ShuffleButton";
+import { VolumeControl } from "@/components/player/VolumeControl";
 import { CoverThumb } from "@/components/shared/CoverThumb";
-import { usePathname } from "next/navigation";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { usePlayer } from "@/hooks/usePlayer";
+import { ChevronDown, Heart, Play } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function NowPlayingPage() {
   const { currentTrack, positionSec, seek, isPlaying } = usePlayer();
   const [liked, setLiked] = useState(false);
-
-  const pathname = usePathname();
-
-  const isPlayerPage = pathname?.includes("/player");
 
   if (!currentTrack) {
     return (
@@ -115,6 +112,16 @@ export default function NowPlayingPage() {
           )}
         </div>
 
+        {/* Visualizer */}
+        <div className="mt-6 h-16 w-full max-w-lg">
+          <AudioVisualizer
+            barCount={48}
+            barColor="#1db954"
+            mirror={true}
+            className="h-full"
+          />
+        </div>
+
         <div className="mt-8 flex w-full items-start justify-between">
           <div className="min-w-0">
             <h1 className="truncate text-h1 text-text-primary">
@@ -148,6 +155,11 @@ export default function NowPlayingPage() {
           <ShuffleButton size="lg" />
           <PlayerControls size="lg" />
           <RepeatModeButton size="lg" />
+        </div>
+
+        {/* Volume control */}
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <VolumeControl size="lg" showLabel />
         </div>
       </div>
     </div>

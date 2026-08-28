@@ -13,6 +13,9 @@ interface PlayerStore {
   lastSyncedPosition: number;
   pendingResume: { track: Track; positionSec: number } | null;
 
+  // Exposed audio element for visualizer
+  getAudioElement: () => HTMLAudioElement;
+
   init: () => Promise<void>;
   acceptResume: () => Promise<void>;
   dismissResume: () => void;
@@ -223,6 +226,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   lastSyncedPosition: -1,
   pendingResume: null,
 
+  getAudioElement: () => getAudioElement(),
+
   init: async () => {
     // 1. Pull the local cache first so the UI has something to show instantly.
     const cached = readPersistedSession();
@@ -321,8 +326,13 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   play: (track) => {
     const { state } = get();
-    const targetTrack = track ?? state.currentTrack;
+    let targetTrack = track ?? state.currentTrack;
     if (!targetTrack) return;
+
+    // Preserve coverUrl from current track if new track doesn't have one
+    if (track && !track.coverUrl && state.currentTrack?.coverUrl) {
+      targetTrack = { ...track, coverUrl: state.currentTrack.coverUrl };
+    }
 
     // User explicitly clicked play -> no longer needs a Resume prompt.
     if (get().pendingResume?.track._id === targetTrack._id) {
@@ -443,7 +453,13 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       else nextIndex = 0; // restart from beginning when at end
     }
 
-    get().play(state.queue[nextIndex]);
+    const nextTrack = state.queue[nextIndex];
+    // Merge coverUrl from current track if the next track doesn't have one
+    if (nextTrack && !nextTrack.coverUrl && state.currentTrack?.coverUrl) {
+      get().play({ ...nextTrack, coverUrl: state.currentTrack.coverUrl });
+    } else {
+      get().play(nextTrack);
+    }
   },
 
   previous: () => {
@@ -457,8 +473,17 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       (t) => t._id === state.currentTrack?._id,
     );
     const prevIndex = currentIndex - 1;
-    if (prevIndex >= 0) get().play(state.queue[prevIndex]);
-    else get().seek(0);
+    if (prevIndex >= 0) {
+      const prevTrack = state.queue[prevIndex];
+      // Merge coverUrl from current track if the previous track doesn't have one
+      if (!prevTrack.coverUrl && state.currentTrack?.coverUrl) {
+        get().play({ ...prevTrack, coverUrl: state.currentTrack.coverUrl });
+      } else {
+        get().play(prevTrack);
+      }
+    } else {
+      get().seek(0);
+    }
   },
 
   setRepeatMode: (mode) => {

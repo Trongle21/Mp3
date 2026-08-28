@@ -14,6 +14,7 @@ export function usePlayer() {
   const setQueue = usePlayerStore((s) => s.setQueue);
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const reorderQueue = usePlayerStore((s) => s.reorderQueue);
+  const getAudioElement = usePlayerStore((s) => s.getAudioElement);
 
   return {
     ...state,
@@ -29,5 +30,6 @@ export function usePlayer() {
     setQueue,
     addToQueue,
     reorderQueue,
+    getAudioElement,
   };
 }

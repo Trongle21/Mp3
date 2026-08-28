@@ -103,6 +103,8 @@ export function ImagePicker({
               className="shrink-0 overflow-hidden rounded"
               style={{ width: size, height: size }}
             >
+              {/* Blob URLs from local files aren't optimized by next/image */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
                 alt="Current"

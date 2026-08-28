@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, Star, ArrowUp, ArrowDown, Users, Pencil, Trash2 } from "lucide-react";
+import Image from "next/image";
+import {
+  Crown,
+  Star,
+  ArrowUp,
+  ArrowDown,
+  Users,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -128,7 +137,10 @@ export default function AdminUsersPage() {
                 key={i}
                 className="grid grid-cols-[1fr_1fr_120px_180px] gap-4 border-b border-border px-6 py-4"
               >
-                <div className="h-5 w-32 animate-pulse rounded bg-bg-elevated" />
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 animate-pulse rounded-full bg-bg-elevated" />
+                  <div className="h-5 w-32 animate-pulse rounded bg-bg-elevated" />
+                </div>
                 <div className="h-5 w-48 animate-pulse rounded bg-bg-elevated" />
                 <div className="h-6 w-16 animate-pulse rounded-full bg-bg-elevated" />
                 <div className="h-6 w-24 animate-pulse rounded-full bg-bg-elevated" />
@@ -158,11 +170,21 @@ export default function AdminUsersPage() {
                   className="grid grid-cols-[1fr_1fr_120px_180px] items-center gap-4 px-6 py-4 transition-colors hover:bg-bg-elevated"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-black">
-                      {user.name?.[0]?.toUpperCase() ??
-                        user.email?.[0]?.toUpperCase() ??
-                        "?"}
-                    </div>
+                    {user.avatarUrl ? (
+                      <Image
+                        src={user.avatarUrl}
+                        alt={user.name || user.email}
+                        width={36}
+                        height={36}
+                        className="h-9 w-9 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-black">
+                        {user.name?.[0]?.toUpperCase() ??
+                          user.email?.[0]?.toUpperCase() ??
+                          "?"}
+                      </div>
+                    )}
                     <span className="truncate text-body font-medium text-text-primary">
                       {user.name || "—"}
                     </span>
