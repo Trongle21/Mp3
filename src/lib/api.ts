@@ -1,8 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const api = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_URL || "https://mp3-backend.vercel.app/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 // Attach the access token to every outgoing request.
@@ -66,8 +65,7 @@ api.interceptors.response.use(
 
     isRefreshing = true;
     try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://mp3-backend.vercel.app/api";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const { data } = await axios.post(`${apiUrl}/auth/refresh`, {
         refreshToken,
       });
