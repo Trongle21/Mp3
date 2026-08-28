@@ -1,7 +1,8 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL:
+    process.env.NEXT_PUBLIC_API_URL || "https://mp3-backend.vercel.app/api",
 });
 
 // Attach the access token to every outgoing request.
@@ -27,11 +28,17 @@ function flushQueue(token: string | null) {
 api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
-    const originalRequest = error.config as (InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    }) | undefined;
+    const originalRequest = error.config as
+      | (InternalAxiosRequestConfig & {
+          _retry?: boolean;
+        })
+      | undefined;
 
-    if (error.response?.status !== 401 || !originalRequest || originalRequest._retry) {
+    if (
+      error.response?.status !== 401 ||
+      !originalRequest ||
+      originalRequest._retry
+    ) {
       return Promise.reject(error);
     }
 
@@ -59,7 +66,9 @@ api.interceptors.response.use(
 
     isRefreshing = true;
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "https://mp3-backend.vercel.app/api";
+      const { data } = await axios.post(`${apiUrl}/auth/refresh`, {
         refreshToken,
       });
       const newToken: string = data.data.accessToken;
@@ -78,7 +87,7 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default api;

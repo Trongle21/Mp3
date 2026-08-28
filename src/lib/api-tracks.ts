@@ -4,7 +4,7 @@ import type { Track, TrackQueryParams } from "@/interfaces/track.interface";
 
 export const uploadTrack = (
   formData: FormData,
-  onUploadProgress?: (percent: number) => void
+  onUploadProgress?: (percent: number) => void,
 ) =>
   api.post<ApiSuccess<Track>>("/tracks/upload", formData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -17,10 +17,13 @@ export const uploadTrack = (
 export const listTracks = (params?: TrackQueryParams) =>
   api.get<PaginatedResponse<Track>>("/tracks", { params });
 
-export const getTrack = (id: string) => api.get<ApiSuccess<Track>>(`/tracks/${id}`);
+export const getTrack = (id: string) =>
+  api.get<ApiSuccess<Track>>(`/tracks/${id}`);
 
-export const updateTrack = (id: string, body: Partial<Pick<Track, "title" | "artist" | "album">>) =>
-  api.patch<ApiSuccess<Track>>(`/tracks/${id}`, body);
+export const updateTrack = (
+  id: string,
+  body: Partial<Pick<Track, "title" | "artist" | "album">>,
+) => api.patch<ApiSuccess<Track>>(`/tracks/${id}`, body);
 
 export const deleteTrack = (id: string) =>
   api.delete<ApiSuccess<{ id: string }>>(`/tracks/${id}`);
@@ -37,7 +40,7 @@ export const deleteTrackCover = (id: string) =>
   api.delete<ApiSuccess<Track>>(`/tracks/${id}/cover`);
 
 export const streamTrackUrl = (id: string) =>
-  `${process.env.NEXT_PUBLIC_API_URL}/tracks/${id}/stream`;
+  api.get<ApiSuccess<string>>(`/tracks/${id}/stream`);
 
 /**
  * Downloads the audio blob for a track. The Authorization header is added by the
