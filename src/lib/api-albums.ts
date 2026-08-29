@@ -1,10 +1,10 @@
-import api from "./api";
 import type { ApiSuccess, PaginatedResponse } from "@/types/api-response";
 import type {
   Album,
   AlbumListItem,
   AlbumQueryParams,
 } from "@/interfaces/album.interface";
+import { ApiClient } from "@/api";
 
 export const createAlbum = (body: {
   title: string;
@@ -12,13 +12,13 @@ export const createAlbum = (body: {
   description?: string;
   year?: number | null;
   genre?: string;
-}) => api.post<ApiSuccess<Album>>("/albums", body);
+}) => ApiClient.post<ApiSuccess<Album>>("/albums", body);
 
 export const listAlbums = (params?: AlbumQueryParams) =>
-  api.get<PaginatedResponse<AlbumListItem>>("/albums", { params });
+  ApiClient.get<PaginatedResponse<AlbumListItem>>("/albums", { params });
 
 export const getAlbum = (id: string) =>
-  api.get<ApiSuccess<Album>>(`/albums/${id}`);
+  ApiClient.get<ApiSuccess<Album>>(`/albums/${id}`);
 
 export const updateAlbum = (
   id: string,
@@ -29,32 +29,39 @@ export const updateAlbum = (
     year?: number | null;
     genre?: string;
   },
-) => api.patch<ApiSuccess<Album>>(`/albums/${id}`, body);
+) => ApiClient.patch<ApiSuccess<Album>>(`/albums/${id}`, body);
 
 export const deleteAlbum = (id: string) =>
-  api.delete<ApiSuccess<{ id: string }>>(`/albums/${id}`);
+  ApiClient.delete<ApiSuccess<{ id: string }>>(`/albums/${id}`);
 
 export const uploadAlbumThumbnail = (id: string, file: File) => {
   const formData = new FormData();
   formData.append("file", file);
-  return api.post<ApiSuccess<Album>>(`/albums/${id}/thumbnail`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  return ApiClient.post<ApiSuccess<Album>>(
+    `/albums/${id}/thumbnail`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    },
+  );
 };
 
 export const deleteAlbumThumbnail = (id: string) =>
-  api.delete<ApiSuccess<Album>>(`/albums/${id}/thumbnail`);
+  ApiClient.delete<ApiSuccess<Album>>(`/albums/${id}/thumbnail`);
 
 export const addTrackToAlbum = (albumId: string, trackId: string) =>
-  api.post<ApiSuccess<{ message?: string }>>(`/albums/${albumId}/tracks`, {
-    trackId,
-  });
+  ApiClient.post<ApiSuccess<{ message?: string }>>(
+    `/albums/${albumId}/tracks`,
+    {
+      trackId,
+    },
+  );
 
 export const removeTrackFromAlbum = (albumId: string, trackId: string) =>
-  api.delete<ApiSuccess<null>>(`/albums/${albumId}/tracks/${trackId}`);
+  ApiClient.delete<ApiSuccess<null>>(`/albums/${albumId}/tracks/${trackId}`);
 
 export const reorderAlbumTracks = (albumId: string, trackIds: string[]) =>
-  api.patch<ApiSuccess<null>>(`/albums/${albumId}/reorder`, { trackIds });
+  ApiClient.patch<ApiSuccess<null>>(`/albums/${albumId}/reorder`, { trackIds });
 
 export const getAlbumThumbnailUrl = (id: string) =>
-  api.get<ApiSuccess<string>>(`/albums/${id}/thumbnail`);
+  ApiClient.get<ApiSuccess<string>>(`/albums/${id}/thumbnail`);

@@ -19,7 +19,11 @@ export type ImageValidationError =
  * structured error. Caller decides how to surface it (toast, inline error…).
  */
 export function validateImageFile(file: File): ImageValidationError {
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
+  if (
+    !ALLOWED_IMAGE_TYPES.includes(
+      file.type as (typeof ALLOWED_IMAGE_TYPES)[number],
+    )
+  ) {
     return { kind: "type", got: file.type };
   }
   if (file.size > MAX_IMAGE_SIZE) {
@@ -28,7 +32,9 @@ export function validateImageFile(file: File): ImageValidationError {
   return null;
 }
 
-export function imageValidationMessage(err: NonNullable<ImageValidationError>): string {
+export function imageValidationMessage(
+  err: NonNullable<ImageValidationError>,
+): string {
   if (err.kind === "type") {
     return "Only JPEG, PNG, WebP, or GIF images are allowed.";
   }

@@ -1,18 +1,22 @@
-import api from "./api";
 import type { ApiSuccess } from "@/types/api-response";
 import type { User } from "@/interfaces/user.interface";
+import { ApiClient } from "@/api";
 
-export const getAllUsers = () => api.get<ApiSuccess<User[]>>("/users");
+export const getAllUsers = () => ApiClient.get<ApiSuccess<User[]>>("/users");
 
 export const updateUserRole = (
   userId: string,
-  body: { isAdmin: "normal" | null }
-) => api.patch<ApiSuccess<User>>(`/users/${userId}/role`, body);
+  body: { isAdmin: "normal" | null },
+) => ApiClient.patch<ApiSuccess<User>>(`/users/${userId}/role`, body);
 
 export const updateUser = (
   userId: string,
-  body: { name?: string; birthdate?: string | null; gender?: "male" | "female" | "other" | null }
-) => api.patch<ApiSuccess<User>>(`/users/${userId}`, body);
+  body: {
+    name?: string;
+    birthdate?: string | null;
+    gender?: "male" | "female" | "other" | null;
+  },
+) => ApiClient.patch<ApiSuccess<User>>(`/users/${userId}`, body);
 
 export const deleteUser = (userId: string) =>
-  api.delete<ApiSuccess<{ _id: string }>>(`/users/${userId}`);
+  ApiClient.delete<ApiSuccess<{ _id: string }>>(`/users/${userId}`);

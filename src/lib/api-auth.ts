@@ -1,6 +1,6 @@
-import api from "./api";
 import type { ApiSuccess } from "@/types/api-response";
 import type { User } from "@/interfaces/user.interface";
+import { ApiClient } from "@/api";
 
 export interface AuthPayload {
   user: User;
@@ -8,13 +8,18 @@ export interface AuthPayload {
   refreshToken: string;
 }
 
-export const register = (body: { email: string; password: string; name?: string }) =>
-  api.post<ApiSuccess<AuthPayload>>("/auth/register", body);
+export const register = (body: {
+  email: string;
+  password: string;
+  name?: string;
+}) => ApiClient.post<ApiSuccess<AuthPayload>>("/auth/register", body);
 
 export const login = (body: { email: string; password: string }) =>
-  api.post<ApiSuccess<AuthPayload>>("/auth/login", body);
+  ApiClient.post<ApiSuccess<AuthPayload>>("/auth/login", body);
 
 export const refresh = (refreshToken: string) =>
-  api.post<ApiSuccess<{ accessToken: string }>>("/auth/refresh", { refreshToken });
+  ApiClient.post<ApiSuccess<{ accessToken: string }>>("/auth/refresh", {
+    refreshToken,
+  });
 
-export const getMe = () => api.get<ApiSuccess<User>>("/auth/me");
+export const getMe = () => ApiClient.get<ApiSuccess<User>>("/auth/me");
