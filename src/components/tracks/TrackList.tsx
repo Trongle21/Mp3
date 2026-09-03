@@ -1,41 +1,34 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import type { Track } from "@/interfaces/track.interface";
-import { TrackRow } from "./TrackRow";
-import { TrackContextMenu } from "./TrackContextMenu";
-import { EditTrackDialog } from "./EditTrackDialog";
-import { usePlayer } from "@/hooks/usePlayer";
+import { useTrackList } from '@/hooks';
+import type { ITrack } from '@/interfaces/track.interface';
+import { EditTrackDialog } from './EditTrackDialog';
+import { TrackContextMenu } from './TrackContextMenu';
+import { TrackRow } from './TrackRow';
 
-export function TrackList({
-  tracks,
-  isAdmin,
-  onCoverUpload,
-}: {
-  tracks: Track[];
+export interface ITrackListProps {
+  tracks: ITrack[];
   isAdmin?: boolean;
-  onCoverUpload?: (track: Track, file: File) => Promise<void>;
-}) {
-  const { currentTrack, isPlaying, play, toggle, setQueue } = usePlayer();
-  const [menuFor, setMenuFor] = useState<{ track: Track; x: number; y: number } | null>(null);
-  const [editTrack, setEditTrack] = useState<Track | null>(null);
+  onCoverUpload?: (track: ITrack, file: File) => Promise<void>;
+}
 
-  const handlePlay = (track: Track) => {
-    if (currentTrack?._id === track._id) {
-      toggle();
-      return;
-    }
-    setQueue(tracks);
-    play(track);
-  };
+export const TrackList = (props: ITrackListProps) => {
+  const { tracks, isAdmin, onCoverUpload } = props;
 
-  const openMenu = (track: Track, e: React.MouseEvent) => {
-    e.preventDefault();
-    setMenuFor({ track, x: e.clientX, y: e.clientY });
-  };
+  const {
+    handlePlay,
+    openMenu,
+    menuFor,
+    editTrack,
+    setEditTrack,
+    isPlaying,
+    currentTrack,
+    setMenuFor,
+  } = useTrackList(props);
 
   return (
-    <div onContextMenu={(e) => e.preventDefault()}>
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div onContextMenu={e => e.preventDefault()}>
       {/* Desktop header: full columns */}
       <div className="hidden grid-cols-[32px_1fr_1fr_80px_auto] items-center gap-4 border-b border-border px-3 pb-2 text-caption text-text-muted lg:grid">
         <span>#</span>
@@ -47,7 +40,11 @@ export function TrackList({
 
       <div className="mt-1">
         {tracks.map((track, index) => (
-          <div key={track._id} onContextMenu={(e) => openMenu(track, e)}>
+          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+          <div
+            key={track._id}
+            onContextMenu={e => openMenu(track, e)}
+          >
             <TrackRow
               track={track}
               index={index}
@@ -55,7 +52,7 @@ export function TrackList({
               isPlaying={isPlaying}
               isAdmin={isAdmin}
               onPlay={() => handlePlay(track)}
-              onOpenMenu={(e) => openMenu(track, e)}
+              onOpenMenu={e => openMenu(track, e)}
               onCoverUpload={onCoverUpload}
             />
           </div>
@@ -75,10 +72,14 @@ export function TrackList({
       {editTrack && (
         <EditTrackDialog
           open={true}
-          onOpenChange={(open) => { if (!open) setEditTrack(null); }}
+          onOpenChange={open => {
+            if (!open) {
+              setEditTrack(null);
+            }
+          }}
           track={editTrack}
         />
       )}
     </div>
   );
-}
+};

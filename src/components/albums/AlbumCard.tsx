@@ -1,33 +1,31 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
-import { Play, MoreHorizontal, Pencil, Trash2, Disc } from "lucide-react";
-import { toast } from "sonner";
-import type { AlbumListItem } from "@/interfaces/album.interface";
-import { coverInitial, formatDuration } from "@/lib/utils";
-import { usePlayer } from "@/hooks/usePlayer";
-import { useDeleteAlbum } from "@/hooks/useAlbums";
-import { useTracks } from "@/hooks/useTracks";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { EditAlbumDialog } from "./EditAlbumDialog";
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { useAlbumCard } from '@/hooks';
+import type { IAlbumListItem } from '@/interfaces';
+import { formatDuration } from '@/lib/utils';
+import { Disc, MoreHorizontal, Pencil, Play, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { EditAlbumDialog } from './EditAlbumDialog';
 
-export function AlbumCard({ album }: { album: AlbumListItem }) {
-  const { setQueue, play } = usePlayer();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-  const deleteAlbum = useDeleteAlbum();
-  const { data: allTracks } = useTracks();
+export interface IAlbumCardProps {
+  album: IAlbumListItem;
+}
 
-  const playAll = () => {
-    if (!album.trackCount) return;
-    const albumTracks = allTracks?.data.filter((t) => t.album === album._id) ?? [];
-    if (albumTracks.length === 0) return;
-    setQueue(albumTracks);
-    play(albumTracks[0]);
-  };
+export function AlbumCard(props: IAlbumCardProps) {
+  const { album } = props;
+
+  const {
+    playAll,
+    menuOpen,
+    setMenuOpen,
+    showDelete,
+    setShowDelete,
+    showEdit,
+    setShowEdit,
+    handleDeleteAlbum,
+  } = useAlbumCard(props);
 
   return (
     <>
@@ -52,8 +50,8 @@ export function AlbumCard({ album }: { album: AlbumListItem }) {
             {album.title}
           </p>
           <p className="text-caption text-text-secondary">
-            {album.artist || "Unknown Artist"}
-            {album.year ? ` · ${album.year}` : ""}
+            {album.artist || 'Unknown Artist'}
+            {album.year ? ` · ${album.year}` : ''}
           </p>
           <p className="text-caption text-text-muted">
             {album.trackCount} tracks · {formatDuration(album.totalDuration)}
@@ -61,7 +59,7 @@ export function AlbumCard({ album }: { album: AlbumListItem }) {
         </Link>
 
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
             playAll();
           }}
@@ -72,9 +70,9 @@ export function AlbumCard({ album }: { album: AlbumListItem }) {
         </button>
 
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
-            setMenuOpen((v) => !v);
+            setMenuOpen(v => !v);
           }}
           aria-label="Album options"
           className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-bg-primary/70 text-text-secondary opacity-0 transition-opacity hover:text-text-primary group-hover:opacity-100"
@@ -120,12 +118,7 @@ export function AlbumCard({ album }: { album: AlbumListItem }) {
         title="Delete album"
         description={`"${album.title}" will be deleted. Tracks stay in your library.`}
         confirmLabel="Delete"
-        onConfirm={() =>
-          deleteAlbum.mutate(album._id, {
-            onSuccess: () => toast.success("Album deleted"),
-            onError: () => toast.error("Couldn't delete album"),
-          })
-        }
+        onConfirm={() => handleDeleteAlbum(album._id)}
       />
     </>
   );

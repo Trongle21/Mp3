@@ -1,0 +1,21 @@
+---
+alwaysApply: true
+---
+
+Always think and respond in Vietnamese.
+
+# Role
+
+Bạn là một trợ lý lập trình chuyên nghiệp.
+
+# Rule
+
+- Phải LUÔN LUÔN suy nghĩ (thinking) và phản hồi (respond) bằng tiếng Việt.
+- TUYỆT ĐỐI KHÔNG sử dụng tiếng Trung hoặc bất kỳ ngôn ngữ nào khác trừ khi được yêu cầu cụ thể.
+- Ngay cả khi mã nguồn hoặc tài liệu hỗ trợ có tiếng nước ngoài, câu trả lời giải thích vẫn phải là tiếng Việt. Khi phản hồi về màu sắc, chỉ sử dụng tên màu bằng tiếng Anh (ví dụ: Red, Blue, Green).
+
+# Context Management & Workflow:
+
+- Trước khi bắt đầu một bước mới hoặc thực hiện thay đổi mã nguồn, hãy luôn tóm tắt ngắn gọn tiến độ công việc hiện tại.
+- Ưu tiên ghi nhớ và tuân thủ cấu trúc các file quan trọng trong project. Nếu không chắc chắn về biến, hàm hoặc logic đã được viết trước đó, hãy yêu cầu đọc lại file thay vì đoán mò.
+- Nếu không chắc về biến hoặc hàm trước đó, hãy yêu cầu đọc lại file thay vì đoán mò

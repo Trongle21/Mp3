@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { GripVertical, Play, Pause, X } from "lucide-react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import type { GroupTrackItem } from "@/interfaces/group.interface";
-import { formatDuration } from "@/lib/utils";
-import { CoverThumb } from "@/components/shared/CoverThumb";
+import { GripVertical, Play, Pause, X } from 'lucide-react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import type { IGroupTrackItem } from '@/interfaces';
+import { formatDuration } from '@/lib/utils';
+import { CoverThumb } from '@/components/shared/CoverThumb';
 
 interface DraggableTrackRowProps {
-  item: GroupTrackItem;
+  item: IGroupTrackItem;
   index: number;
   isActive: boolean;
   isPlaying: boolean;
@@ -16,14 +16,8 @@ interface DraggableTrackRowProps {
   onRemove: () => void;
 }
 
-export function DraggableTrackRow({
-  item,
-  index,
-  isActive,
-  isPlaying,
-  onPlay,
-  onRemove,
-}: DraggableTrackRowProps) {
+export function DraggableTrackRow(props: DraggableTrackRowProps) {
+  const { item, index, isActive, isPlaying, onPlay, onRemove } = props;
   const {
     attributes,
     listeners,
@@ -59,11 +53,11 @@ export function DraggableTrackRow({
 
       <button
         onClick={onPlay}
-        aria-label={isActive && isPlaying ? "Pause" : "Play"}
+        aria-label={isActive && isPlaying ? 'Pause' : 'Play'}
         className="text-text-secondary"
       >
         <span className="group-hover:hidden">
-          <span className={isActive ? "text-accent" : "text-text-muted"}>
+          <span className={isActive ? 'text-accent' : 'text-text-muted'}>
             {index + 1}
           </span>
         </span>
@@ -85,7 +79,7 @@ export function DraggableTrackRow({
         />
         <div className="min-w-0">
           <p
-            className={`truncate font-medium ${isActive ? "text-accent" : "text-text-primary"}`}
+            className={`truncate font-medium ${isActive ? 'text-accent' : 'text-text-primary'}`}
           >
             {item.track.title}
           </p>

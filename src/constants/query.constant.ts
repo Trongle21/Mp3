@@ -1,0 +1,23 @@
+export const USER_QUERY_KEYS = {
+  GET_ALL_USERS: 'GET_ALL_USERS',
+  GET_ME: 'GET_ME',
+};
+
+export const ALBUM_QUERY_KEYS = {
+  GET_ALBUMS: 'GET_ALBUMS',
+  GET_ALBUM: 'GET_ALBUM',
+};
+
+export const GROUP_QUERY_KEYS = {
+  GET_GROUPS: 'GET_GROUPS',
+  GET_GROUP: 'GET_GROUP',
+};
+
+export const PLAYER_QUERY_KEYS = {
+  GET_PLAYER_STATE: 'GET_PLAYER_STATE',
+};
+
+export const TRACK_QUERY_KEYS = {
+  GET_TRACKS: 'GET_TRACKS',
+  GET_TRACK: 'GET_TRACK',
+};

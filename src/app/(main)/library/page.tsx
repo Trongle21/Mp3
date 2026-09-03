@@ -1,37 +1,33 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import { Upload, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { TrackSkeleton } from "@/components/tracks/TrackSkeleton";
-import { useTracks } from "@/hooks/useTracks";
-import { TrackList } from "@/components/tracks/TrackList";
-import { UploadModal } from "@/components/tracks/UploadModal";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { useAuth } from "@/hooks/useAuth";
-
-type SortOption = "recent" | "title_asc" | "artist_asc";
+import { EmptyState } from '@/components/shared/EmptyState';
+import { TrackList } from '@/components/tracks/TrackList';
+import { TrackSkeleton } from '@/components/tracks/TrackSkeleton';
+import { UploadModal } from '@/components/tracks/UploadModal';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useLibrary, type SortOption } from '@/hooks';
+import { Search, Upload } from 'lucide-react';
 
 const sortLabels: Record<SortOption, string> = {
-  recent: "Recent",
-  title_asc: "Title A–Z",
-  artist_asc: "Artist A–Z",
+  recent: 'Recent',
+  title_asc: 'Title A–Z',
+  artist_asc: 'Artist A–Z',
 };
 
 export default function LibraryPage() {
-  const { user } = useAuth();
-  const [uploadOpen, setUploadOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<SortOption>("recent");
-  const debouncedSearch = useDebouncedValue(search, 300);
-
-  const { data, isLoading } = useTracks({
-    search: debouncedSearch || undefined,
+  const {
+    user,
+    setUploadOpen,
+    search,
+    setSearch,
     sort,
-  });
-  const tracks = useMemo(() => data?.data ?? [], [data]);
+    setSort,
+    isLoading,
+    tracks,
+    debouncedSearch,
+    uploadOpen,
+  } = useLibrary();
 
   return (
     <div className="animate-fade-slide-in pt-4">
@@ -49,17 +45,20 @@ export default function LibraryPage() {
           <Input
             placeholder="Search your library"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             className="pl-9"
           />
         </div>
         <select
           value={sort}
-          onChange={(e) => setSort(e.target.value as SortOption)}
+          onChange={e => setSort(e.target.value as SortOption)}
           className="h-11 shrink-0 rounded-md border border-border bg-bg-elevated px-3 text-body text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:w-auto"
         >
           {Object.entries(sortLabels).map(([value, label]) => (
-            <option key={value} value={value}>
+            <option
+              key={value}
+              value={value}
+            >
               {label}
             </option>
           ))}
@@ -78,23 +77,29 @@ export default function LibraryPage() {
         <EmptyState
           icon={Upload}
           title={
-            debouncedSearch ? "No tracks found" : "Upload your first track"
+            debouncedSearch ? 'No tracks found' : 'Upload your first track'
           }
           description={
             debouncedSearch
-              ? "Try a different search term."
-              : "Your library is empty. Add a track to start listening."
+              ? 'Try a different search term.'
+              : 'Your library is empty. Add a track to start listening.'
           }
-          actionLabel={debouncedSearch ? undefined : "Upload track"}
+          actionLabel={debouncedSearch ? undefined : 'Upload track'}
           onAction={debouncedSearch ? undefined : () => setUploadOpen(true)}
         />
       )}
 
       {!isLoading && tracks.length > 0 && (
-        <TrackList tracks={tracks} isAdmin={!!user?.isAdmin} />
+        <TrackList
+          tracks={tracks}
+          isAdmin={!!user?.isAdmin}
+        />
       )}
 
-      <UploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
+      <UploadModal
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+      />
     </div>
   );
 }

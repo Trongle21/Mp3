@@ -7,6 +7,7 @@ import storybook from 'eslint-plugin-storybook';
 import { FlatCompat } from '@eslint/eslintrc';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import cspellPlugin from '@cspell/eslint-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +48,7 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
+      '@cspell': cspellPlugin,
       import: importPlugin,
       prettier,
     },
@@ -54,21 +56,42 @@ export default [
       react: { version: 'detect' },
     },
     rules: {
-      'no-console': 'error',
-      eqeqeq: 'error',
+      // ----- Core JS rules -----
+      'no-console': ['error', { allow: ['warn', 'error'] }], // chặn console.log, cho phép console.warn/error
+      eqeqeq: 'error', // bắt buộc dùng === thay vì ==
       'no-self-compare': 'error',
       'no-unreachable': 'warn',
+      'no-debugger': 'error', // chặn sót debugger trong code
+      'no-var': 'error', // bắt buộc dùng let/const, không dùng var
+      'prefer-const': 'warn', // dùng const nếu biến không bị reassign
+      'no-duplicate-imports': 'error', // chặn import trùng từ cùng 1 module
+      curly: ['warn', 'all'], // bắt buộc có {} cho if/else/for dù chỉ 1 dòng
+      'no-nested-ternary': 'warn', // chặn ternary lồng nhau khó đọc
+
+      // ----- TypeScript rules -----
       '@typescript-eslint/no-unused-vars': [
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'warn', // cảnh báo dùng dấu ! (non-null assertion)
+      '@typescript-eslint/consistent-type-imports': 'warn', // bắt buộc dùng `import type` cho type-only imports
+
+      // ----- Prettier -----
       'prettier/prettier': 'warn',
+
+      // ----- Import -----
       'import/order': 'off',
+      'import/no-duplicates': 'error', // chặn import trùng file (khác với no-duplicate-imports ở phạm vi rộng hơn)
+
+      // ----- Accessibility (jsx-a11y) -----
       'jsx-a11y/click-events-have-key-events': 'warn',
       'jsx-a11y/no-static-element-interactions': 'warn',
       'jsx-a11y/no-noninteractive-element-interactions': 'warn',
+
+      // ----- Spell checker -----
+      '@cspell/spellchecker': 'warn',
     },
   },
 ];

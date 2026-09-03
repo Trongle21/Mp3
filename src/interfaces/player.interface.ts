@@ -1,23 +1,27 @@
-import type { Track } from "./track.interface";
+import type { ITrack } from './track.interface';
 
-export type RepeatMode = "off" | "one" | "all";
+export type RepeatMode = 'off' | 'one' | 'all';
 
-export interface PlayerState {
+export interface IPlayerState {
   user: string;
-  currentTrack: Track | null;
+  currentTrack: ITrack | null;
   positionSec: number;
   isPlaying: boolean;
   repeatMode: RepeatMode;
   shuffle: boolean;
-  queue: Track[];
+  queue: ITrack[];
   updatedAt: string;
 }
 
-export interface PlayerStateUpdate {
-  currentTrack?: Track | null;
+export interface IPlayerStateUpdate {
+  currentTrack?: ITrack | null;
   positionSec?: number;
   isPlaying?: boolean;
-  queue?: Track[];
+  queue?: ITrack[];
   repeatMode?: RepeatMode;
   shuffle?: boolean;
+}
+
+export interface IPlayerStateResponse {
+  data: IPlayerState;
 }

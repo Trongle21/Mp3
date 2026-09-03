@@ -1,17 +1,16 @@
-import { create } from "zustand";
-import * as playerApi from "@/lib/api-player";
-import { fetchTrackStream } from "@/lib/api-tracks";
-import type { PlayerState, RepeatMode } from "@/interfaces/player.interface";
-import type { Track } from "@/interfaces/track.interface";
+import { playerApi, trackApi } from '@/api';
+import type { IPlayerState, RepeatMode } from '@/interfaces/player.interface';
+import type { ITrack } from '@/interfaces/track.interface';
+import { create } from 'zustand';
 
 const SYNC_INTERVAL_MS = 5000;
 
 interface PlayerStore {
-  state: PlayerState;
+  state: IPlayerState;
   syncIntervalId: ReturnType<typeof setInterval> | null;
   loadingTrackId: string | null;
   lastSyncedPosition: number;
-  pendingResume: { track: Track; positionSec: number } | null;
+  pendingResume: { track: ITrack; positionSec: number } | null;
 
   // Exposed audio element for visualizer
   getAudioElement: () => HTMLAudioElement;
@@ -20,7 +19,7 @@ interface PlayerStore {
   acceptResume: () => Promise<void>;
   dismissResume: () => void;
 
-  play: (track?: Track) => void;
+  play: (track?: ITrack) => void;
   pause: () => void;
   toggle: () => void;
   seek: (positionSec: number) => void;
@@ -31,19 +30,19 @@ interface PlayerStore {
   setRepeatMode: (mode: RepeatMode) => void;
   toggleShuffle: () => void;
 
-  setQueue: (tracks: Track[]) => void;
-  addToQueue: (track: Track) => void;
+  setQueue: (tracks: ITrack[]) => void;
+  addToQueue: (track: ITrack) => void;
   reorderQueue: (from: number, to: number) => void;
 
-  saveState: (partial?: Partial<PlayerState>) => Promise<void>;
+  saveState: (partial?: Partial<IPlayerState>) => Promise<void>;
 }
 
-const emptyState: PlayerState = {
-  user: "",
+const emptyState: IPlayerState = {
+  user: '',
   currentTrack: null,
   positionSec: 0,
   isPlaying: false,
-  repeatMode: "off",
+  repeatMode: 'off',
   shuffle: false,
   queue: [],
   updatedAt: new Date().toISOString(),
@@ -65,13 +64,13 @@ let lastDispatchedTime = -1;
 let onEndedCallback: (() => void) | null = null;
 
 function getAudioElement(): HTMLAudioElement {
-  if (typeof window === "undefined") {
-    throw new Error("Audio element requires window");
+  if (typeof window === 'undefined') {
+    throw new Error('Audio element requires window');
   }
   if (!audioEl) {
     audioEl = new Audio();
-    audioEl.preload = "metadata";
-    audioEl.addEventListener("ended", () => {
+    audioEl.preload = 'metadata';
+    audioEl.addEventListener('ended', () => {
       onEndedCallback?.();
     });
   }
@@ -90,18 +89,23 @@ function revokeCurrentObjectUrl() {
 }
 
 function emitPlayhead() {
-  if (!audioEl) return;
+  if (!audioEl) {
+    return;
+  }
   const t = audioEl.currentTime || 0;
   const d = audioEl.duration || 0;
   // Only notify if time actually advanced by >= 1 frame worth to avoid spam.
-  if (Math.abs(t - lastDispatchedTime) < 0.016 && playheadListeners.size <= 1)
+  if (Math.abs(t - lastDispatchedTime) < 0.016 && playheadListeners.size <= 1) {
     return;
+  }
   lastDispatchedTime = t;
-  playheadListeners.forEach((fn) => fn(t, d));
+  playheadListeners.forEach(fn => fn(t, d));
 }
 
 function startRafLoop() {
-  if (rafId !== null) return;
+  if (rafId !== null) {
+    return;
+  }
   const tick = () => {
     if (audioEl && !audioEl.paused) {
       emitPlayhead();
@@ -122,10 +126,14 @@ function stopRafLoop() {
 
 export function subscribePlayhead(fn: PlayheadListener): () => void {
   playheadListeners.add(fn);
-  if (audioEl && !audioEl.paused) startRafLoop();
+  if (audioEl && !audioEl.paused) {
+    startRafLoop();
+  }
   return () => {
     playheadListeners.delete(fn);
-    if (playheadListeners.size === 0) stopRafLoop();
+    if (playheadListeners.size === 0) {
+      stopRafLoop();
+    }
   };
 }
 
@@ -136,25 +144,29 @@ export function getCurrentPositionSec(): number {
 // -----------------------------------------------------------------------------
 // Local persistence (so F5 / route changes don't lose the playhead).
 // -----------------------------------------------------------------------------
-const LS_KEY = "player.lastSession.v1";
+const LS_KEY = 'player.lastSession.v1';
 const LS_WRITE_THROTTLE_MS = 1500;
 let lsWriteTimer: ReturnType<typeof setTimeout> | null = null;
 let lsDirtyPosition = 0;
 
 interface PersistedSession {
-  track: Track;
+  track: ITrack;
   positionSec: number;
   updatedAt: string;
 }
 
 function isBrowser() {
-  return typeof window !== "undefined" && typeof localStorage !== "undefined";
+  return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 }
 
-function persistSessionThrottled(track: Track, positionSec: number) {
-  if (!isBrowser()) return;
+function persistSessionThrottled(track: ITrack, positionSec: number) {
+  if (!isBrowser()) {
+    return;
+  }
   lsDirtyPosition = positionSec;
-  if (lsWriteTimer) return;
+  if (lsWriteTimer) {
+    return;
+  }
   lsWriteTimer = setTimeout(() => {
     lsWriteTimer = null;
     const pos = lsDirtyPosition;
@@ -173,28 +185,25 @@ function persistSessionThrottled(track: Track, positionSec: number) {
 }
 
 function readPersistedSession(): PersistedSession | null {
-  if (!isBrowser()) return null;
+  if (!isBrowser()) {
+    return null;
+  }
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return null;
+    if (!raw) {
+      return null;
+    }
     const parsed = JSON.parse(raw) as PersistedSession;
-    if (!parsed?.track?._id) return null;
+    if (!parsed?.track?._id) {
+      return null;
+    }
     return parsed;
   } catch {
     return null;
   }
 }
 
-function clearPersistedSession() {
-  if (!isBrowser()) return;
-  try {
-    localStorage.removeItem(LS_KEY);
-  } catch {
-    // ignore
-  }
-}
-
-async function loadAndPlay(track: Track, startAt: number, autoPlay = true) {
+async function loadAndPlay(track: ITrack, startAt: number, autoPlay = true) {
   const audio = getAudioElement();
   audio.pause();
 
@@ -202,20 +211,22 @@ async function loadAndPlay(track: Track, startAt: number, autoPlay = true) {
   // axios interceptor (and the 401 -> refresh -> retry flow applies). We then
   // hand the blob to an <audio> element via an object URL.
   revokeCurrentObjectUrl();
-  const blob = await fetchTrackStream(track._id);
+  const blob = await trackApi.fetchStream(track._id);
   currentObjectUrl = URL.createObjectURL(blob);
   audio.src = currentObjectUrl;
 
   audio.currentTime = startAt;
-  if (!autoPlay) return;
+  if (!autoPlay) {
+    return;
+  }
   try {
     await audio.play();
   } catch (err) {
-    console.error("Playback failed:", err);
+    console.error('Playback failed:', err);
   }
 }
 
-async function preloadOnly(track: Track, startAt: number) {
+async function preloadOnly(track: ITrack, startAt: number) {
   await loadAndPlay(track, startAt, false);
 }
 
@@ -242,18 +253,22 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     }
 
     // 2. Pull the authoritative state from the backend.
-    let backendState: PlayerState | null = null;
+    let backendState: IPlayerState | null = null;
     try {
-      const { data } = await playerApi.getPlayerState();
+      const { data } = await playerApi.getState();
       backendState = data.data;
       if (backendState) {
         // Merge coverUrl from cached track if backend doesn't have it
-        if (backendState.currentTrack && cached?.track && !backendState.currentTrack.coverUrl) {
+        if (
+          backendState.currentTrack &&
+          cached?.track &&
+          !backendState.currentTrack.coverUrl
+        ) {
           backendState.currentTrack.coverUrl = cached.track.coverUrl;
         }
         // Also merge for queue items
         if (cached?.track && backendState.queue) {
-          backendState.queue = backendState.queue.map((t) =>
+          backendState.queue = backendState.queue.map(t =>
             t._id === cached.track._id && !t.coverUrl && cached.track.coverUrl
               ? { ...t, coverUrl: cached.track.coverUrl }
               : t
@@ -279,7 +294,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       try {
         await preloadOnly(targetTrack, targetPosition);
       } catch (err) {
-        console.error("Preload on init failed:", err);
+        console.error('Preload on init failed:', err);
         set({ pendingResume: null });
       }
     } else if (targetTrack) {
@@ -291,7 +306,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   acceptResume: async () => {
     const resume = get().pendingResume;
-    if (!resume) return;
+    if (!resume) {
+      return;
+    }
     const { track, positionSec } = resume;
     set({
       pendingResume: null,
@@ -311,7 +328,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         await loadAndPlay(track, positionSec, true);
       }
     } catch (err) {
-      console.error("Resume playback failed:", err);
+      console.error('Resume playback failed:', err);
     } finally {
       set({ loadingTrackId: null });
       startRafLoop();
@@ -324,10 +341,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     set({ pendingResume: null });
   },
 
-  play: (track) => {
+  play: track => {
     const { state } = get();
     let targetTrack = track ?? state.currentTrack;
-    if (!targetTrack) return;
+    if (!targetTrack) {
+      return;
+    }
 
     // Preserve coverUrl from current track if new track doesn't have one
     if (track && !track.coverUrl && state.currentTrack?.coverUrl) {
@@ -365,7 +384,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       // Set up ended callback for repeat functionality
       setOnEndedCallback(() => {
         const { state } = get();
-        if (state.repeatMode === "one" && state.currentTrack) {
+        if (state.repeatMode === 'one' && state.currentTrack) {
           // Repeat current track: seek to 0 and play again
           const audio = getAudioElement();
           audio.currentTime = 0;
@@ -382,8 +401,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       audioEl
         .play()
         .then(() => apply(audioEl!.currentTime || 0))
-        .catch((err) => {
-          console.error("Resume failed:", err);
+        .catch(err => {
+          console.error('Resume failed:', err);
           set({ loadingTrackId: null });
         });
     } else {
@@ -396,8 +415,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         if (current.state.isPlaying && audioEl) {
           const pos = audioEl.currentTime || 0;
           get().saveState({ positionSec: pos });
-          if (current.state.currentTrack)
+          if (current.state.currentTrack) {
             persistSessionThrottled(current.state.currentTrack, pos);
+          }
         }
       }, SYNC_INTERVAL_MS);
       set({ syncIntervalId: id });
@@ -418,21 +438,26 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   toggle: () => {
     const { state } = get();
-    if (state.isPlaying) get().pause();
-    else get().play();
+    if (state.isPlaying) {
+      get().pause();
+    } else {
+      get().play();
+    }
   },
 
-  seek: (positionSec) => {
+  seek: positionSec => {
     if (audioEl) {
       audioEl.currentTime = positionSec;
     }
-    set((s) => ({ state: { ...s.state, positionSec } }));
+    set(s => ({ state: { ...s.state, positionSec } }));
     get().saveState({ positionSec });
     const currentTrack = get().state.currentTrack;
-    if (currentTrack) persistSessionThrottled(currentTrack, positionSec);
+    if (currentTrack) {
+      persistSessionThrottled(currentTrack, positionSec);
+    }
   },
 
-  setVolume: (volume) => {
+  setVolume: volume => {
     if (audioEl) {
       audioEl.volume = Math.min(1, Math.max(0, volume));
     }
@@ -440,17 +465,22 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   next: () => {
     const { state } = get();
-    if (state.queue.length === 0) return;
+    if (state.queue.length === 0) {
+      return;
+    }
     const currentIndex = state.queue.findIndex(
-      (t) => t._id === state.currentTrack?._id,
+      t => t._id === state.currentTrack?._id
     );
     let nextIndex = currentIndex + 1;
 
     if (state.shuffle) {
       nextIndex = Math.floor(Math.random() * state.queue.length);
     } else if (nextIndex >= state.queue.length) {
-      if (state.repeatMode === "all") nextIndex = 0;
-      else nextIndex = 0; // restart from beginning when at end
+      if (state.repeatMode === 'all') {
+        nextIndex = 0;
+      } else {
+        nextIndex = 0;
+      } // restart from beginning when at end
     }
 
     const nextTrack = state.queue[nextIndex];
@@ -470,7 +500,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     }
     const { state } = get();
     const currentIndex = state.queue.findIndex(
-      (t) => t._id === state.currentTrack?._id,
+      t => t._id === state.currentTrack?._id
     );
     const prevIndex = currentIndex - 1;
     if (prevIndex >= 0) {
@@ -486,25 +516,25 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     }
   },
 
-  setRepeatMode: (mode) => {
-    set((s) => ({ state: { ...s.state, repeatMode: mode } }));
+  setRepeatMode: mode => {
+    set(s => ({ state: { ...s.state, repeatMode: mode } }));
     get().saveState({ repeatMode: mode });
   },
 
   toggleShuffle: () => {
     const shuffle = !get().state.shuffle;
-    set((s) => ({ state: { ...s.state, shuffle } }));
+    set(s => ({ state: { ...s.state, shuffle } }));
     get().saveState({ shuffle });
   },
 
-  setQueue: (tracks) => {
-    set((s) => ({ state: { ...s.state, queue: tracks } }));
+  setQueue: tracks => {
+    set(s => ({ state: { ...s.state, queue: tracks } }));
     get().saveState({ queue: tracks });
   },
 
-  addToQueue: (track) => {
+  addToQueue: track => {
     const queue = [...get().state.queue, track];
-    set((s) => ({ state: { ...s.state, queue } }));
+    set(s => ({ state: { ...s.state, queue } }));
     get().saveState({ queue });
   },
 
@@ -512,13 +542,13 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const queue = [...get().state.queue];
     const [moved] = queue.splice(from, 1);
     queue.splice(to, 0, moved);
-    set((s) => ({ state: { ...s.state, queue } }));
+    set(s => ({ state: { ...s.state, queue } }));
     get().saveState({ queue });
   },
 
-  saveState: async (partial) => {
+  saveState: async partial => {
     try {
-      await playerApi.updatePlayerState(partial ?? {});
+      await playerApi.updateState(partial ?? {});
     } catch {
       // Non-fatal: playback continues locally even if the sync call fails.
     }

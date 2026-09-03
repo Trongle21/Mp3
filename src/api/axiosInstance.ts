@@ -1,6 +1,6 @@
 import axios, {
-  AxiosInstance,
   type AxiosError,
+  type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from 'axios';
 
@@ -56,7 +56,9 @@ const axiosClient = (): AxiosInstance => {
         // Wait for the in-flight refresh to finish, then retry with its token.
         return new Promise((resolve, reject) => {
           pendingQueue.push(token => {
-            if (!token) return reject(error);
+            if (!token) {
+              return reject(error);
+            }
             originalRequest.headers.Authorization = `Bearer ${token}`;
             resolve(instance(originalRequest));
           });

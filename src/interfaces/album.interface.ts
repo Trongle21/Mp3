@@ -1,13 +1,13 @@
-import type { Track } from "./track.interface";
+import type { ITrack } from './track.interface';
 
-export interface AlbumTrackItem {
+export interface IAlbumTrackItem {
   _id: string;
   position: number;
   addedAt: string;
-  track: Track;
+  track: ITrack;
 }
 
-export interface Album {
+export interface IAlbum {
   _id: string;
   title: string;
   artist: string;
@@ -17,14 +17,18 @@ export interface Album {
   thumbnailKey: string;
   thumbnailUrl: string | null;
   owner: string;
-  tracks: AlbumTrackItem[];
+  tracks: IAlbumTrackItem[];
   trackCount: number;
   totalDuration: number;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface AlbumListItem {
+export interface IAlbumResponse {
+  data: IAlbum;
+}
+
+export interface IAlbumListItem {
   _id: string;
   title: string;
   artist: string;
@@ -37,10 +41,18 @@ export interface AlbumListItem {
   createdAt: string;
 }
 
-export interface AlbumQueryParams {
+export interface IAlbumQueryParams {
   search?: string;
   artist?: string;
   genre?: string;
   page?: number;
   limit?: number;
+}
+
+export interface IAlbumBody {
+  title: string;
+  artist?: string;
+  description?: string;
+  year?: number | null;
+  genre?: string;
 }

@@ -1,12 +1,20 @@
-"use client";
+'use client';
 
-import { useUser } from "@/hooks/useUser";
-import { AvatarSection } from "@/components/profile/AvatarSection";
-import { ProfileForm } from "@/components/profile/ProfileForm";
-import { AdminBadge } from "@/components/profile/AdminBadge";
+import { useProfilePage } from '@/hooks/profile';
+
+import { AdminBadge } from '@/components/profile/AdminBadge';
+import { AvatarSection } from '@/components/profile/AvatarSection';
+import { ProfileForm } from '@/components/profile/ProfileForm';
 
 export default function ProfilePage() {
-  const { user, isLoading, updateProfile, isUpdating, uploadAvatar, deleteAvatar } = useUser();
+  const {
+    user,
+    isLoading,
+    isUpdating,
+    handleUpdateProfile,
+    handleUploadAvatar,
+    handleDeleteAvatar,
+  } = useProfilePage();
 
   if (isLoading) {
     return (
@@ -17,7 +25,10 @@ export default function ProfilePage() {
         </div>
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-14 animate-pulse rounded-lg bg-bg-elevated" />
+            <div
+              key={i}
+              className="h-14 animate-pulse rounded-lg bg-bg-elevated"
+            />
           ))}
         </div>
       </div>
@@ -27,20 +38,18 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 pt-20 text-text-muted">
-        <p>Could not load profile.</p>
+        <p>Could not load profile.</p>handleUpdateProfile
       </div>
     );
   }
-
-  const isUploading = false; // merge loading states if needed
 
   return (
     <div className="animate-fade-slide-in flex flex-col gap-8 pt-4">
       <div className="flex flex-col items-center gap-6 rounded-xl border border-border bg-bg-secondary p-6">
         <AvatarSection
           avatarUrl={user.avatarUrl}
-          onUpload={uploadAvatar}
-          onDelete={deleteAvatar}
+          handleUploadAvatar={handleUploadAvatar}
+          handleDeleteAvatar={handleDeleteAvatar}
           isLoading={isUpdating}
         />
 
@@ -51,8 +60,14 @@ export default function ProfilePage() {
       </div>
 
       <div className="rounded-xl border border-border bg-bg-secondary p-6">
-        <h2 className="mb-5 text-h4 font-semibold text-text-primary">My Profile</h2>
-        <ProfileForm user={user} onSave={updateProfile} isSaving={isUpdating} />
+        <h2 className="mb-5 text-h4 font-semibold text-text-primary">
+          My Profile
+        </h2>
+        <ProfileForm
+          user={user}
+          handleUpdateProfile={handleUpdateProfile}
+          isSaving={isUpdating}
+        />
       </div>
     </div>
   );

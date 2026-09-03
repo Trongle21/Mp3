@@ -1,41 +1,33 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { X } from "lucide-react";
-import type { User } from "@/interfaces/user.interface";
+import { useEditUserModal } from '@/hooks';
+import type { IUser } from '@/interfaces/user.interface';
+import { X } from 'lucide-react';
 
-interface EditUserModalProps {
-  user: User;
+export interface IEditUserModalProps {
+  user: IUser;
   onClose: () => void;
-  onSave: (updated: User) => void;
-  onSubmit: (payload: { userId: string; name: string; birthdate: string; gender: string }) => Promise<void>;
+  onSave: (updated: IUser) => void;
+  onSubmit: (payload: {
+    userId: string;
+    name: string;
+    birthdate: string;
+    gender: string;
+  }) => Promise<void>;
   isSaving: boolean;
 }
 
-export function EditUserModal({ user, onClose, onSave, onSubmit, isSaving }: EditUserModalProps) {
-  const [form, setForm] = useState({
-    name: user.name ?? "",
-    birthdate: user.birthdate ? user.birthdate.split("T")[0] : "",
-    gender: user.gender ?? "",
-  });
+export function EditUserModal(props: IEditUserModalProps) {
+  const { user, onClose, isSaving } = props;
 
-  const handleSave = async () => {
-    await onSubmit({
-      userId: user._id,
-      name: form.name,
-      birthdate: form.birthdate,
-      gender: form.gender,
-    });
-    onSave({ ...user, ...form, birthdate: form.birthdate || null, gender: (form.gender || null) as "male" | "female" | "other" | null });
-    onClose();
-  };
+  const { form, handleSave, setForm } = useEditUserModal(props);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-md rounded-xl border border-border bg-bg-secondary p-6 shadow-2xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-h3 font-semibold text-text-primary">
-            Sửa thông tin: {user.name || user.email}
+            Edit user: {user.name || user.email}
           </h2>
           <button
             onClick={onClose}
@@ -46,21 +38,21 @@ export function EditUserModal({ user, onClose, onSave, onSubmit, isSaving }: Edi
         </div>
 
         <div className="space-y-4">
-          {/* Tên */}
+          {/* Name */}
           <div>
             <label className="mb-1 block text-caption font-medium text-text-secondary">
-              Tên
+              Name
             </label>
             <input
               type="text"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={e => setForm({ ...form, name: e.target.value })}
               className="w-full rounded-lg border border-border bg-bg-elevated px-3 py-2 text-body text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              placeholder="Tên người dùng"
+              placeholder="User's name"
             />
           </div>
 
-          {/* Email — chỉ hiển thị, không cho sửa */}
+          {/* Email — display only, not editable */}
           <div>
             <label className="mb-1 block text-caption font-medium text-text-secondary">
               Email
@@ -71,36 +63,38 @@ export function EditUserModal({ user, onClose, onSave, onSubmit, isSaving }: Edi
               disabled
               className="w-full cursor-not-allowed rounded-lg border border-border bg-bg-elevated px-3 py-2 text-body text-text-muted opacity-60"
             />
-            <p className="mt-1 text-caption text-text-muted">🔒 Không thể thay đổi</p>
+            <p className="mt-1 text-caption text-text-muted">
+              🔒 Cannot be changed
+            </p>
           </div>
 
-          {/* Ngày sinh */}
+          {/* Date of birth */}
           <div>
             <label className="mb-1 block text-caption font-medium text-text-secondary">
-              Ngày sinh
+              Date of birth
             </label>
             <input
               type="date"
               value={form.birthdate}
-              onChange={(e) => setForm({ ...form, birthdate: e.target.value })}
+              onChange={e => setForm({ ...form, birthdate: e.target.value })}
               className="w-full rounded-lg border border-border bg-bg-elevated px-3 py-2 text-body text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
 
-          {/* Giới tính */}
+          {/* Gender */}
           <div>
             <label className="mb-1 block text-caption font-medium text-text-secondary">
-              Giới tính
+              Gender
             </label>
             <select
               value={form.gender}
-              onChange={(e) => setForm({ ...form, gender: e.target.value })}
+              onChange={e => setForm({ ...form, gender: e.target.value })}
               className="w-full rounded-lg border border-border bg-bg-elevated px-3 py-2 text-body text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             >
               <option value="">—</option>
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-              <option value="other">Khác</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
             </select>
           </div>
         </div>
@@ -110,14 +104,14 @@ export function EditUserModal({ user, onClose, onSave, onSubmit, isSaving }: Edi
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-body font-medium text-text-secondary transition-colors hover:bg-bg-highlight hover:text-text-primary"
           >
-            Hủy
+            Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving}
             className="rounded-lg bg-accent px-4 py-2 text-body font-semibold text-white transition-colors hover:brightness-110 disabled:opacity-50"
           >
-            {isSaving ? "Đang lưu..." : "Lưu"}
+            {isSaving ? 'Saving...' : 'Save'}
           </button>
         </div>
       </div>

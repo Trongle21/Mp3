@@ -1,25 +1,22 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { EditUserModal } from '@/components/admin/EditUserModal';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { useAdminPage } from '@/hooks';
+import type { IUpdateUserBody, IUser } from '@/interfaces';
 import {
-  Crown,
-  Star,
-  ArrowUp,
   ArrowDown,
-  Users,
+  ArrowUp,
+  Crown,
   Pencil,
+  Star,
   Trash2,
-} from "lucide-react";
-import { useUsers } from "@/hooks/useUsers";
-import { useAuth } from "@/hooks/useAuth";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { EditUserModal } from "@/components/admin/EditUserModal";
-import type { User } from "@/interfaces/user.interface";
+  Users,
+} from 'lucide-react';
+import Image from 'next/image';
 
-function RoleBadge({ isAdmin }: { isAdmin: User["isAdmin"] }) {
-  if (isAdmin === "master") {
+function RoleBadge({ isAdmin }: { isAdmin: IUser['isAdmin'] }) {
+  if (isAdmin === 'master') {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/20 px-2.5 py-0.5 text-caption font-semibold text-purple-400">
         <Crown className="h-3 w-3" />
@@ -27,7 +24,7 @@ function RoleBadge({ isAdmin }: { isAdmin: User["isAdmin"] }) {
       </span>
     );
   }
-  if (isAdmin === "normal") {
+  if (isAdmin === 'normal') {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/20 px-2.5 py-0.5 text-caption font-semibold text-blue-400">
         <Star className="h-3 w-3" />
@@ -42,33 +39,31 @@ function RoleBadge({ isAdmin }: { isAdmin: User["isAdmin"] }) {
   );
 }
 
-function RoleActions({
-  currentRole,
-  userId,
-  currentUserId,
-  onChange,
-  isUpdating,
-}: {
-  currentRole: User["isAdmin"];
+interface IRoleActionsProps {
+  currentRole: IUser['isAdmin'];
   userId: string;
   currentUserId: string;
-  onChange: (role: "normal" | null) => void;
+  onChange: (role: 'normal' | null) => void;
   isUpdating: boolean;
-}) {
-  const isSelf = userId === currentUserId;
-  if (isSelf)
-    return <span className="text-caption text-text-muted">Yourself</span>;
+}
 
-  if (currentRole === "master") {
+function RoleActions(props: IRoleActionsProps) {
+  const { currentRole, userId, currentUserId, onChange, isUpdating } = props;
+  const isSelf = userId === currentUserId;
+  if (isSelf) {
+    return <span className="text-caption text-text-muted">Yourself</span>;
+  }
+
+  if (currentRole === 'master') {
     return <span className="text-caption text-text-muted">Cannot change</span>;
   }
 
-  if (currentRole === "normal") {
+  if (currentRole === 'normal') {
     return (
       <button
         onClick={() => onChange(null)}
         disabled={isUpdating}
-        title="Hạ xuống User"
+        title="Demote to User"
         className="flex items-center gap-1 rounded-full bg-bg-highlight px-2 py-1 text-caption font-medium text-text-muted transition-colors hover:bg-danger/20 hover:text-danger disabled:opacity-50"
       >
         <ArrowDown className="h-3 w-3" />
@@ -79,9 +74,9 @@ function RoleActions({
 
   return (
     <button
-      onClick={() => onChange("normal")}
+      onClick={() => onChange('normal')}
       disabled={isUpdating}
-      title="Nâng lên Admin"
+      title="Promote to Admin"
       className="flex items-center gap-1 rounded-full bg-blue-500/20 px-2 py-1 text-caption font-medium text-blue-400 transition-colors hover:bg-blue-500/30 disabled:opacity-50"
     >
       <ArrowUp className="h-3 w-3" />
@@ -91,28 +86,25 @@ function RoleActions({
 }
 
 export default function AdminUsersPage() {
-  const { user: currentUser } = useAuth();
   const {
+    currentUser,
     users,
     isLoading,
-    updateRole,
-    updateUser,
-    deleteUser,
+    handleUpdateRole,
+    handleUpdateUser,
+    handleDeleteUser,
     isUpdatingRole,
     isUpdatingUser,
     isDeletingUser,
-  } = useUsers();
-  const router = useRouter();
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+    editingUser,
+    deletingUser,
+    setEditingUser,
+    setDeletingUser,
+  } = useAdminPage();
 
-  useEffect(() => {
-    if (currentUser && currentUser.isAdmin !== "master") {
-      router.replace("/");
-    }
-  }, [currentUser, router]);
-
-  if (currentUser?.isAdmin !== "master") return null;
+  if (currentUser?.isAdmin !== 'master') {
+    return null;
+  }
 
   return (
     <div className="animate-fade-slide-in pt-4">
@@ -159,14 +151,18 @@ export default function AdminUsersPage() {
           <div className="divide-y divide-border">
             {users
               .slice()
-              .sort((a, b) => {
-                if (a.isAdmin === "master") return -1;
-                if (b.isAdmin === "master") return 1;
+              .sort((a: any, b: any) => {
+                if (a.isAdmin === 'master') {
+                  return -1;
+                }
+                if (b.isAdmin === 'master') {
+                  return 1;
+                }
                 return 0;
               })
-              .map((user) => (
+              .map(user => (
                 <div
-                  key={user._id}
+                  key={user?._id}
                   className="grid grid-cols-[1fr_1fr_120px_180px] items-center gap-4 px-6 py-4 transition-colors hover:bg-bg-elevated"
                 >
                   <div className="flex min-w-0 items-center gap-3">
@@ -182,11 +178,11 @@ export default function AdminUsersPage() {
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-body font-semibold text-black">
                         {user.name?.[0]?.toUpperCase() ??
                           user.email?.[0]?.toUpperCase() ??
-                          "?"}
+                          '?'}
                       </div>
                     )}
                     <span className="truncate text-body font-medium text-text-primary">
-                      {user.name || "—"}
+                      {user.name || '—'}
                     </span>
                   </div>
 
@@ -200,17 +196,17 @@ export default function AdminUsersPage() {
                     <RoleActions
                       currentRole={user.isAdmin}
                       userId={user._id}
-                      currentUserId={currentUser?._id ?? ""}
-                      onChange={(role) =>
-                        updateRole({ userId: user._id, isAdmin: role })
+                      currentUserId={currentUser?._id ?? ''}
+                      onChange={role =>
+                        handleUpdateRole(user._id, role as 'normal' | 'master')
                       }
                       isUpdating={isUpdatingRole}
                     />
-                    {user.isAdmin !== "master" && (
+                    {user.isAdmin !== 'master' && (
                       <>
                         <button
                           onClick={() => setEditingUser(user)}
-                          title="Sửa thông tin"
+                          title="Edit information"
                           className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-highlight hover:text-text-primary"
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -218,7 +214,7 @@ export default function AdminUsersPage() {
                         {user._id !== currentUser?._id && (
                           <button
                             onClick={() => setDeletingUser(user)}
-                            title="Xóa user"
+                            title="Delete user"
                             className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-danger/20 hover:text-danger"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -237,20 +233,15 @@ export default function AdminUsersPage() {
         <EditUserModal
           user={editingUser}
           onClose={() => setEditingUser(null)}
-          onSave={(updated) => {
-            // queryClient will handle cache update via onSuccess
-          }}
-          onSubmit={async (payload) => {
-            await updateUser({
-              userId: payload.userId,
+          onSave={() => {}}
+          onSubmit={async payload => {
+            const body: IUpdateUserBody = {
               name: payload.name,
               birthdate: payload.birthdate || null,
               gender: (payload.gender || null) as
-                | "male"
-                | "female"
-                | "other"
-                | null,
-            });
+                'male' | 'female' | 'other' | null,
+            };
+            await handleUpdateUser(payload.userId, body);
           }}
           isSaving={isUpdatingUser}
         />
@@ -258,15 +249,17 @@ export default function AdminUsersPage() {
 
       <ConfirmDialog
         open={!!deletingUser}
-        onOpenChange={(open) => !open && setDeletingUser(null)}
-        title="Xóa user"
-        description={`Bạn có chắc muốn xóa user "${deletingUser?.name || deletingUser?.email}"?\nTất cả track, group, album của user này sẽ bị xóa.`}
-        confirmLabel={isDeletingUser ? "Đang xóa..." : "Xóa"}
+        onOpenChange={open => !open && setDeletingUser(null)}
+        title="Delete user"
+        description={`Are you sure you want to delete user "${deletingUser?.name || deletingUser?.email}"?\nAll tracks, groups, albums of this user will be deleted.`}
+        confirmLabel={isDeletingUser ? 'Deleting...' : 'Delete'}
         onConfirm={() => {
-          if (!deletingUser) return;
-          deleteUser(deletingUser._id, {
-            onSettled: () => setDeletingUser(null),
-          });
+          if (!deletingUser) {
+            return;
+          }
+          handleDeleteUser(deletingUser._id);
+
+          setDeletingUser(null);
         }}
       />
     </div>

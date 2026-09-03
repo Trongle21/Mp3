@@ -1,4 +1,4 @@
-export interface Track {
+export interface ITrack {
   _id: string;
   title: string;
   artist: string;
@@ -14,15 +14,19 @@ export interface Track {
   createdAt: string;
 }
 
+export interface ITrackResponse {
+  data: ITrack;
+}
+
 /** Track enriched with derived, ready-to-use URLs for playback and display. */
-export interface TrackWithStream extends Track {
+export interface TrackWithStream extends ITrack {
   streamUrl: string;
   coverUrl: string;
 }
 
 export interface TrackQueryParams {
   search?: string;
-  sort?: "recent" | "title_asc" | "artist_asc";
+  sort?: 'recent' | 'title_asc' | 'artist_asc';
   page?: number;
   limit?: number;
   /** Filter tracks by album ID (populates album info). */

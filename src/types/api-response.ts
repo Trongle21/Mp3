@@ -1,4 +1,7 @@
-export interface ApiSuccess<T> {
+import type { UseMutationOptions } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+
+export interface IApiResponse<T> {
   success: true;
   data: T;
 }
@@ -11,6 +14,7 @@ export interface ApiFieldError {
 export interface ApiValidationError {
   success: false;
   errors: ApiFieldError[];
+  message?: string;
 }
 
 export interface ApiGenericError {
@@ -18,7 +22,7 @@ export interface ApiGenericError {
   message: string;
 }
 
-export type ApiError = ApiValidationError | ApiGenericError;
+export type IApiError = AxiosError<ApiGenericError | ApiValidationError>;
 
 export interface Pagination {
   page: number;
@@ -27,13 +31,22 @@ export interface Pagination {
   totalPages: number;
 }
 
-export interface PaginatedResponse<T> {
+export interface IPaginatedResponse<T> {
   success: true;
   data: T[];
   pagination: Pagination;
 }
 
 /** Type guard: narrows an ApiError to the validation-error shape. */
-export function isValidationError(error: ApiError): error is ApiValidationError {
-  return "errors" in error;
+export function isValidationError(
+  error: IApiError
+): error is AxiosError<ApiValidationError> {
+  return 'errors' in error;
 }
+
+export type IAppMutationOptions<
+  TVariables,
+  TResponse,
+  TError = Error,
+  TContext = unknown,
+> = UseMutationOptions<TResponse, TError, TVariables, TContext>;

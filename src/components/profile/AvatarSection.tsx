@@ -1,48 +1,20 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import { User, Camera, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { useAvatarSection } from '@/hooks';
+import { cn } from '@/lib/utils';
+import { Camera, Trash2, User } from 'lucide-react';
 
-interface AvatarSectionProps {
+export interface IAvatarSectionProps {
   avatarUrl: string | null;
-  onUpload: (file: File) => Promise<void>;
-  onDelete: () => Promise<void>;
+  handleUploadAvatar: (file: File) => void;
+  handleDeleteAvatar: () => void;
   isLoading?: boolean;
 }
 
-export function AvatarSection({ avatarUrl, onUpload, onDelete, isLoading }: AvatarSectionProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+export function AvatarSection(props: IAvatarSectionProps) {
+  const { avatarUrl, isLoading, handleDeleteAvatar } = props;
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
-      return;
-    }
-
-    try {
-      await onUpload(file);
-    } catch {
-      // error handled by hook
-    }
-    if (inputRef.current) inputRef.current.value = "";
-  };
-
-  const handleDelete = async () => {
-    try {
-      await onDelete();
-    } catch {
-      // error handled by hook
-    }
-  };
+  const { inputRef, handleFileChange } = useAvatarSection(props);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -88,10 +60,10 @@ export function AvatarSection({ avatarUrl, onUpload, onDelete, isLoading }: Avat
 
         {avatarUrl && (
           <button
-            onClick={handleDelete}
+            onClick={handleDeleteAvatar}
             disabled={isLoading}
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-4 py-2 text-caption font-medium text-danger transition-colors hover:bg-danger/10 disabled:opacity-50"
+              'flex items-center gap-1.5 rounded-full px-4 py-2 text-caption font-medium text-danger transition-colors hover:bg-danger/10 disabled:opacity-50'
             )}
           >
             <Trash2 className="h-3.5 w-3.5" />

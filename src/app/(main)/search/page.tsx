@@ -1,62 +1,27 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Search as SearchIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useTracks } from "@/hooks/useTracks";
-import { useGroups } from "@/hooks/useGroups";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { TrackList } from "@/components/tracks/TrackList";
-import { GroupCard } from "@/components/groups/GroupCard";
+import { Search as SearchIcon } from 'lucide-react';
 
-const RECENT_KEY = "recentSearches";
-const MAX_RECENT = 8;
-
-function loadRecent(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveRecent(term: string) {
-  const existing = loadRecent().filter((t) => t !== term);
-  const updated = [term, ...existing].slice(0, MAX_RECENT);
-  localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
-  return updated;
-}
+import { GroupCard } from '@/components/groups/GroupCard';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { TrackList } from '@/components/tracks/TrackList';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { RECENT_KEY, useSearchPage } from '@/hooks';
 
 export default function SearchPage() {
-  const [query, setQuery] = useState("");
-  const [recent, setRecent] = useState<string[]>([]);
-  const debouncedQuery = useDebouncedValue(query, 300);
-
-  useEffect(() => setRecent(loadRecent()), []);
-
-  useEffect(() => {
-    if (debouncedQuery.trim().length > 1) {
-      setRecent(saveRecent(debouncedQuery.trim()));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery]);
-
-  const { data: trackData, isLoading: tracksLoading } = useTracks({
-    search: debouncedQuery || undefined,
-  });
-  const { data: groups, isLoading: groupsLoading } = useGroups();
-
-  const tracks = trackData?.data ?? [];
-  const matchedGroups = (groups ?? []).filter((g) =>
-    g.name.toLowerCase().includes(debouncedQuery.toLowerCase())
-  );
-
-  const isSearching = debouncedQuery.trim().length > 0;
-  const isLoading = tracksLoading || groupsLoading;
-  const hasResults = tracks.length > 0 || matchedGroups.length > 0;
+  const {
+    debouncedQuery,
+    query,
+    setQuery,
+    recent,
+    setRecent,
+    isSearching,
+    isLoading,
+    hasResults,
+    matchedGroups,
+    tracks,
+  } = useSearchPage();
 
   return (
     <div className="animate-fade-slide-in pt-4">
@@ -66,7 +31,7 @@ export default function SearchPage() {
           autoFocus
           placeholder="Search tracks, artists, groups"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={e => setQuery(e.target.value)}
           className="h-12 pl-9"
         />
       </div>
@@ -88,10 +53,12 @@ export default function SearchPage() {
             )}
           </div>
           {recent.length === 0 ? (
-            <p className="mt-3 text-caption text-text-muted">Your recent searches will show up here.</p>
+            <p className="mt-3 text-caption text-text-muted">
+              Your recent searches will show up here.
+            </p>
           ) : (
             <div className="mt-3 flex flex-wrap gap-2">
-              {recent.map((term) => (
+              {recent.map(term => (
                 <button
                   key={term}
                   onClick={() => setQuery(term)}
@@ -108,7 +75,10 @@ export default function SearchPage() {
       {isSearching && isLoading && (
         <div className="mt-8 space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 w-full" />
+            <Skeleton
+              key={i}
+              className="h-14 w-full"
+            />
           ))}
         </div>
       )}
@@ -127,8 +97,11 @@ export default function SearchPage() {
             <section>
               <h2 className="mb-3 text-h3 text-text-primary">Groups</h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {matchedGroups.map((group) => (
-                  <GroupCard key={group._id} group={group} />
+                {matchedGroups.map(group => (
+                  <GroupCard
+                    key={group._id}
+                    group={group}
+                  />
                 ))}
               </div>
             </section>

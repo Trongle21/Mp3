@@ -1,33 +1,35 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
-import { Play, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import type { Group } from "@/interfaces/group.interface";
-import { coverInitial } from "@/lib/utils";
-import { usePlayer } from "@/hooks/usePlayer";
-import { useDeleteGroupInline } from "@/hooks/useGroups";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { RenameGroupDialog } from "./RenameGroupDialog";
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { useGroupCard } from '@/hooks';
+import type { IGroup } from '@/interfaces';
+import { coverInitial } from '@/lib/utils';
+import { ListMusic, MoreHorizontal, Pencil, Play, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { RenameGroupDialog } from './RenameGroupDialog';
 
-export function GroupCard({ group, isAdmin }: { group: Group; isAdmin?: boolean }) {
-  const { setQueue, play } = usePlayer();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
-  const [showRename, setShowRename] = useState(false);
-  const deleteGroup = useDeleteGroupInline();
+export interface IGroupCardProps {
+  group: IGroup;
+  isAdmin?: boolean;
+}
 
-  const covers = group?.tracks?.slice(0, 4).map((t) => t.track);
-  const hasThumbnail = !!group?.thumbnailUrl;
+export function GroupCard(props: IGroupCardProps) {
+  const { group, isAdmin } = props;
 
-  const playAll = () => {
-    if (covers?.length === 0 && group?.tracks?.length === 0) return;
-    const tracks = group?.tracks?.map((t) => t.track);
-    setQueue(tracks);
-    play(tracks?.[0]);
-  };
+  const {
+    playAll,
+    menuOpen,
+    setMenuOpen,
+    showDelete,
+    setShowDelete,
+    showRename,
+    setShowRename,
+    handleDeleteGroup,
+  } = useGroupCard(props);
+
+  const covers = group.tracks?.slice(0, 4).map(t => t.track);
+  const hasThumbnail = !!group.thumbnailUrl;
 
   return (
     <>
@@ -42,10 +44,13 @@ export function GroupCard({ group, isAdmin }: { group: Group; isAdmin?: boolean 
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                 className="object-cover"
               />
-            ) : covers?.length > 0 ? (
+            ) : covers && covers.length > 0 ? (
               <div className="grid h-full w-full grid-cols-2 grid-rows-2">
                 {covers.map((track, i) => (
-                  <div key={i} className="relative">
+                  <div
+                    key={i}
+                    className="relative"
+                  >
                     {track?.coverUrl ? (
                       <Image
                         src={track.coverUrl}
@@ -66,41 +71,41 @@ export function GroupCard({ group, isAdmin }: { group: Group; isAdmin?: boolean 
               </div>
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-bg-highlight to-bg-elevated text-text-muted">
-                <span className="text-3xl font-semibold text-text-secondary">
-                  {coverInitial(group?.name)}
-                </span>
+                <ListMusic className="h-12 w-12 text-text-secondary" />
               </div>
             )}
           </div>
           <p className="mt-3 truncate text-body font-medium text-text-primary">
-            {group?.name}
+            {group.name}
           </p>
           <p className="text-caption text-text-secondary">
-            {group?.trackCount} tracks
+            {group.trackCount} tracks
           </p>
         </Link>
 
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
             playAll();
           }}
-          aria-label={`Play ${group?.name}`}
+          aria-label={`Play ${group.name}`}
           className="absolute bottom-16 right-5 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-accent text-black opacity-0 shadow-lg transition-all hover:scale-105 hover:bg-accent-hover group-hover:translate-y-0 group-hover:opacity-100"
         >
           <Play className="ml-0.5 h-4 w-4" />
         </button>
 
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            setMenuOpen((v) => !v);
-          }}
-          aria-label="Group options"
-          className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-bg-primary/70 text-text-secondary opacity-0 transition-opacity hover:text-text-primary group-hover:opacity-100"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </button>
+        {isAdmin && (
+          <button
+            onClick={e => {
+              e.preventDefault();
+              setMenuOpen(v => !v);
+            }}
+            aria-label="Group options"
+            className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-bg-primary/70 text-text-secondary opacity-0 transition-opacity hover:text-text-primary group-hover:opacity-100"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        )}
 
         {isAdmin && menuOpen && (
           <div className="absolute right-3 top-11 z-10 w-40 rounded-lg border border-border bg-bg-elevated py-1 shadow-xl">
@@ -138,14 +143,9 @@ export function GroupCard({ group, isAdmin }: { group: Group; isAdmin?: boolean 
         open={showDelete}
         onOpenChange={setShowDelete}
         title="Delete group"
-        description={`"${group?.name}" will be deleted. Tracks stay in your library.`}
+        description={`"${group.name}" will be deleted. Tracks stay in your library.`}
         confirmLabel="Delete"
-        onConfirm={() =>
-          deleteGroup.mutate(group._id, {
-            onSuccess: () => toast.success("Group deleted"),
-            onError: () => toast.error("Couldn't delete group"),
-          })
-        }
+        onConfirm={() => handleDeleteGroup(group._id)}
       />
     </>
   );

@@ -1,19 +1,37 @@
-import type { Track } from "./track.interface";
+import type { ITrack } from './track.interface';
 
-export interface GroupTrackItem {
-  track: Track;
+export interface IGroupTrackItem {
+  track: ITrack;
   position: number;
   addedAt: string;
 }
 
-export interface Group {
+export interface IGroup {
   _id: string;
   name: string;
   owner: string;
-  /** Direct URL to the group's thumbnail (R2 public). Only present when a thumbnail has been set. */
-  thumbnailUrl?: string;
-  tracks: GroupTrackItem[];
+  thumbnailKey?: string;
+  thumbnailUrl: string | null;
+  tracks: IGroupTrackItem[];
   trackCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface IGroupResponse {
+  data: IGroup;
+}
+
+export interface IGroupQueryParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface IGroupBody {
+  name: string;
+}
+
+export interface IGroupListResponse {
+  data: IGroup[];
 }

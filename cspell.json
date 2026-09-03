@@ -1,0 +1,6 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["axios", "tanstack", "tseslint", "zustand", "shadcn"],
+  "ignorePaths": ["node_modules", "dist", "*.config.js"]
+}

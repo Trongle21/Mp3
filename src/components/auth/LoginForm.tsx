@@ -1,90 +1,58 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LoginInput } from "@/types/auth.schema";
-import { useAuth } from "@/hooks/useAuth";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { isAxiosError } from "axios";
+import { useLoginForm } from '@/hooks';
+import Link from 'next/link';
+import { Controller } from 'react-hook-form';
+import { AppButton, AppInput } from '../ui';
 
 export function LoginForm() {
-  const router = useRouter();
-  const { login } = useAuth();
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
-
-  const onSubmit = async (values: LoginInput) => {
-    setServerError(null);
-    setIsSubmitting(true);
-    try {
-      await login(values.email, values.password);
-      router.push("/library");
-    } catch (err) {
-      if (isAxiosError(err) && err.response?.data) {
-        const body = err.response.data;
-        if (body.errors) {
-          body.errors.forEach(
-            (fieldError: { field: string; message: string }) => {
-              setError(fieldError.field as keyof LoginInput, {
-                message: fieldError.message,
-              });
-            },
-          );
-        } else {
-          setServerError(body.message ?? "Something went wrong. Try again.");
-        }
-      } else {
-        setServerError("Something went wrong. Try again.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const { form, handleSubmit, isPending } = useLoginForm();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-      <Input
-        placeholder="Email"
-        type="email"
-        {...register("email")}
-        error={errors.email?.message}
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6 space-y-4"
+    >
+      <Controller
+        control={form.control}
+        name="email"
+        render={({ field, fieldState: { error } }) => (
+          <AppInput
+            placeholder="Email"
+            type="email"
+            error={error?.message}
+            {...field}
+          />
+        )}
       />
-      <Input
-        placeholder="Password"
-        type="password"
-        {...register("password")}
-        error={errors.password?.message}
+
+      <Controller
+        control={form.control}
+        name="password"
+        render={({ field, fieldState: { error } }) => (
+          <AppInput
+            placeholder="Password"
+            type="password"
+            error={error?.message}
+            {...field}
+          />
+        )}
       />
 
-      <label className="flex items-center gap-2 text-caption text-text-secondary">
-        <input
-          type="checkbox"
-          {...register("rememberMe")}
-          className="accent-accent"
-        />
-        Remember me
-      </label>
-
-      {serverError && <p className="text-caption text-danger">{serverError}</p>}
-
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Logging in…" : "Log in"}
-      </Button>
+      <AppButton
+        type="submit"
+        className="w-full"
+        disabled={isPending}
+      >
+        {isPending ? 'Logging in…' : 'Log in'}
+      </AppButton>
 
       <p className="pt-2 text-center text-caption text-text-secondary">
-        New here?{" "}
-        <Link href="/register" className="text-accent hover:text-accent-hover">
+        New here?{' '}
+        <Link
+          href="/register"
+          className="text-accent hover:text-accent-hover"
+        >
           Create an account
         </Link>
       </p>

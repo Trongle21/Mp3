@@ -1,14 +1,15 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/auth.store";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/stores/auth.store';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, isInitializing } = useAuth();
-  const loadFromStorage = useAuthStore((s) => s.loadFromStorage);
+
+  const loadFromStorage = useAuthStore(s => s.loadFromStorage);
 
   useEffect(() => {
     loadFromStorage();
@@ -17,7 +18,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isInitializing && !isAuthenticated) {
-      router.replace("/auth-required");
+      router.replace('/auth-required');
     }
   }, [isInitializing, isAuthenticated, router]);
 
@@ -29,7 +30,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return <>{children}</>;
 }

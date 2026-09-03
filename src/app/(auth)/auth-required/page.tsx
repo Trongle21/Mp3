@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Lock, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
+import { Lock, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function AuthRequiredPage() {
   return (
@@ -15,13 +15,20 @@ export default function AuthRequiredPage() {
         Please sign in to continue listening to your music.
       </p>
       <div className="mt-6 flex flex-col gap-2">
-        <Button asChild className="w-full">
+        <Button
+          asChild
+          className="w-full"
+        >
           <Link href="/login">
             Go to login
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
-        <Button asChild variant="outline" className="w-full">
+        <Button
+          asChild
+          variant="outline"
+          className="w-full"
+        >
           <Link href="/register">Create an account</Link>
         </Button>
       </div>

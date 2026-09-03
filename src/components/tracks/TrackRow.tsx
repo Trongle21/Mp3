@@ -1,61 +1,48 @@
-"use client";
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+'use client';
 
-import { useRef, useState } from "react";
-import type { Track } from "@/interfaces/track.interface";
-import { formatDuration } from "@/lib/utils";
+import { MusicVisualizer } from '@/components/player/MusicVisualizer';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { useTrackRow } from '@/hooks';
+import type { ITrack } from '@/interfaces';
+import { formatDuration } from '@/lib/utils';
 import {
+  Image as ImageIcon,
   MoreHorizontal,
   Pause,
-  Play,
   Pencil,
+  Play,
   Trash2,
-  Image as ImageIcon,
-} from "lucide-react";
-import { CoverThumb } from "../shared/CoverThumb";
-import { EditTrackDialog } from "./EditTrackDialog";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { MusicVisualizer } from "@/components/player/MusicVisualizer";
-import { useDeleteTrack } from "@/hooks/useTracks";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { CoverThumb } from '../shared/CoverThumb';
+import { EditTrackDialog } from './EditTrackDialog';
 
-interface TrackRowProps {
-  track: Track;
+export interface ITrackRowProps {
+  track: ITrack;
   index: number;
   isActive: boolean;
   isPlaying: boolean;
   isAdmin?: boolean;
   onPlay: () => void;
   onOpenMenu: (e: React.MouseEvent) => void;
-  onCoverUpload?: (track: Track, file: File) => Promise<void>;
+  onCoverUpload?: (track: ITrack, file: File) => Promise<void>;
 }
 
-export function TrackRow({
-  track,
-  index,
-  isActive,
-  isPlaying,
-  isAdmin,
-  onPlay,
-  onOpenMenu,
-  onCoverUpload,
-}: TrackRowProps) {
-  const [showEdit, setShowEdit] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
-  const [showCoverPicker, setShowCoverPicker] = useState(false);
-  const coverInputRef = useRef<HTMLInputElement>(null);
-  const deleteTrack = useDeleteTrack();
+export function TrackRow(props: ITrackRowProps) {
+  const { track, index, isActive, isPlaying, isAdmin, onPlay, onOpenMenu } =
+    props;
 
-  const handleCoverFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !onCoverUpload) return;
-    setShowCoverPicker(false);
-    try {
-      await onCoverUpload(track, file);
-    } catch {
-      toast.error("Couldn't upload cover");
-    }
-    if (coverInputRef.current) coverInputRef.current.value = "";
-  };
+  const {
+    showEdit,
+    setShowEdit,
+    showDelete,
+    setShowDelete,
+    showCoverPicker,
+    setShowCoverPicker,
+    coverInputRef,
+    handleCoverFile,
+    handleDeleteTrack,
+  } = useTrackRow(props);
   return (
     <>
       <div
@@ -64,14 +51,17 @@ export function TrackRow({
       >
         <button
           onClick={onPlay}
-          aria-label={isActive && isPlaying ? "Pause" : "Play"}
+          aria-label={isActive && isPlaying ? 'Pause' : 'Play'}
           className="flex h-6 w-6 items-center justify-center text-text-secondary"
         >
           {isActive && isPlaying ? (
-            <MusicVisualizer isPlaying={true} barCount={3} />
+            <MusicVisualizer
+              isPlaying={true}
+              barCount={3}
+            />
           ) : (
             <span className="group-hover:hidden">
-              <span className={isActive ? "text-accent" : "text-text-muted"}>
+              <span className={isActive ? 'text-accent' : 'text-text-muted'}>
                 {index + 1}
               </span>
             </span>
@@ -94,7 +84,7 @@ export function TrackRow({
           />
           <div className="min-w-0 flex-1">
             <p
-              className={`truncate w-full font-medium ${isActive ? "text-accent" : "text-text-primary"}`}
+              className={`truncate w-full font-medium ${isActive ? 'text-accent' : 'text-text-primary'}`}
             >
               {track.title}
             </p>
@@ -105,9 +95,9 @@ export function TrackRow({
         </div>
 
         <p className=" truncate text-caption text-text-secondary">
-          {typeof track.album === "string"
+          {typeof track.album === 'string'
             ? track.album
-            : ((track.album as { title?: string })?.title ?? "")}
+            : ((track.album as { title?: string })?.title ?? '')}
         </p>
         <p className=" text-caption text-text-secondary">
           {formatDuration(track.durationSec)}
@@ -173,7 +163,9 @@ export function TrackRow({
             <button
               onClick={() => {
                 setShowCoverPicker(false);
-                if (coverInputRef.current) coverInputRef.current.value = "";
+                if (coverInputRef.current) {
+                  coverInputRef.current.value = '';
+                }
               }}
               className="text-caption text-text-muted hover:text-text-primary"
             >
@@ -195,12 +187,7 @@ export function TrackRow({
         title="Delete track"
         description={`"${track.title}" will be permanently removed from your library.`}
         confirmLabel="Delete"
-        onConfirm={() =>
-          deleteTrack.mutate(track._id, {
-            onSuccess: () => toast.success("Track deleted"),
-            onError: () => toast.error("Couldn't delete track"),
-          })
-        }
+        onConfirm={() => handleDeleteTrack(track)}
       />
     </>
   );

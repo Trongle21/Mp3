@@ -1,28 +1,23 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Disc } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAlbums } from "@/hooks/useAlbums";
-import { useAuth } from "@/hooks/useAuth";
-import { AlbumCard } from "@/components/albums/AlbumCard";
-import { CreateAlbumDialog } from "@/components/albums/CreateAlbumDialog";
+import { AlbumCard } from '@/components/albums/AlbumCard';
+import { CreateAlbumDialog } from '@/components/albums/CreateAlbumDialog';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAlbum } from '@/hooks';
+import { Disc } from 'lucide-react';
 
 export default function AlbumsPage() {
-  const { user } = useAuth();
-  const [createOpen, setCreateOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [genre, setGenre] = useState("");
-
-  const { data: albumsData, isLoading } = useAlbums({
-    search: search || undefined,
-    genre: genre || undefined,
-  });
-
-  const isAdmin = !!user?.isAdmin;
+  const {
+    createOpen,
+    setCreateOpen,
+    search,
+    setSearch,
+    albumsData,
+    isLoading,
+  } = useAlbum();
 
   return (
     <div className="animate-fade-slide-in pt-4">
@@ -35,13 +30,7 @@ export default function AlbumsPage() {
         <Input
           placeholder="Search albums..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
-        />
-        <Input
-          placeholder="Filter by genre"
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           className="max-w-xs"
         />
       </div>
@@ -49,22 +38,25 @@ export default function AlbumsPage() {
       {isLoading && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-square w-full" />
+            <Skeleton
+              key={i}
+              className="aspect-square w-full"
+            />
           ))}
         </div>
       )}
 
-      {!isLoading && (albumsData?.data.length ?? 0) === 0 && !search && !genre && (
+      {!isLoading && (albumsData?.length ?? 0) === 0 && !search && (
         <EmptyState
           icon={Disc}
           title="Create your first album"
-          description="Albums let you organize your tracks with rich metadata like artist, year, and genre."
+          description="Albums let you organize your tracks with rich metadata like artist and year."
           actionLabel="New album"
           onAction={() => setCreateOpen(true)}
         />
       )}
 
-      {!isLoading && (albumsData?.data.length ?? 0) === 0 && (search || genre) && (
+      {!isLoading && (albumsData?.length ?? 0) === 0 && search && (
         <EmptyState
           icon={Disc}
           title="No albums found"
@@ -72,15 +64,21 @@ export default function AlbumsPage() {
         />
       )}
 
-      {!isLoading && (albumsData?.data.length ?? 0) > 0 && (
+      {!isLoading && (albumsData?.length ?? 0) > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {albumsData!.data.map((album) => (
-            <AlbumCard key={album._id} album={album} />
+          {albumsData?.map(album => (
+            <AlbumCard
+              key={album._id}
+              album={album}
+            />
           ))}
         </div>
       )}
 
-      <CreateAlbumDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <CreateAlbumDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+      />
     </div>
   );
 }
