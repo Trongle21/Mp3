@@ -3,12 +3,23 @@
 
 import { navItems } from '@/constants';
 import { useSidebar } from '@/hooks';
+import { useChatStore } from '@/stores/chat.store';
 import { cn } from '@/lib/utils';
 import { LogOut, Music2, Users, X } from 'lucide-react';
 import Link from 'next/link';
 
 export function Sidebar() {
   const { open, setOpen, user, handleLogout, pathname } = useSidebar();
+
+  const pendingRequestCount = useChatStore(
+    (s) => s.pendingContactRequestCount
+  );
+  // Subscribe so we re-render on SSE updates.
+  const unreadByConversation = useChatStore((s) => s.unreadByConversation);
+  const totalUnread = Object.values(unreadByConversation).reduce(
+    (sum, n) => sum + n,
+    0
+  );
 
   return (
     <>
@@ -51,12 +62,16 @@ export function Sidebar() {
         <nav className="flex-1 space-y-1 px-3">
           {navItems.map(({ href, label, icon: Icon }) => {
             const isActive = pathname?.startsWith(href);
+            const isChat = href === '/chat';
+            const badgeCount = isChat
+              ? Math.max(totalUnread, pendingRequestCount)
+              : 0;
             return (
               <Link
                 key={href}
                 href={href}
                 className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors',
+                  'relative flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors',
                   isActive
                     ? 'bg-bg-highlight text-text-primary'
                     : 'text-text-secondary hover:text-text-primary'
@@ -64,6 +79,11 @@ export function Sidebar() {
               >
                 <Icon className="h-5 w-5" />
                 {label}
+                {isChat && badgeCount > 0 && (
+                  <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-black">
+                    {badgeCount > 99 ? '99+' : badgeCount}
+                  </span>
+                )}
               </Link>
             );
           })}

@@ -6,6 +6,7 @@ import { Header } from '@/components/shared/Header';
 import { PlayerBar } from '@/components/player/PlayerBar';
 import { PlayerInit } from '@/components/player/PlayerInit';
 import { ResumeBar } from '@/components/player/ResumeBar';
+import { ChatConnectionProvider } from '@/components/chat';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -18,6 +19,7 @@ export default function MainLayout({
   const isPlayerPage = pathname?.includes('/player');
   return (
     <AuthGuard>
+      <ChatConnectionProvider />
       <PlayerInit />
       <Sidebar />
       <div

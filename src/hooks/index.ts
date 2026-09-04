@@ -8,6 +8,7 @@ export * from './profile';
 export * from './search';
 export * from './admin';
 export * from './shared';
+export * from './chat';
 
 // File
 export * from './useAuth';

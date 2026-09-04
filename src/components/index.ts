@@ -6,3 +6,4 @@ export * from './albums';
 export * from './groups';
 export * from './profile';
 export * from './admin';
+export * from './chat';

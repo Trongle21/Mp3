@@ -59,11 +59,17 @@ const config: Config = {
           '0%, 100%': { boxShadow: '0 0 0 0 rgba(29,185,84,0.55)' },
           '50%': { boxShadow: '0 0 0 8px rgba(29,185,84,0)' },
         },
+        'reply-highlight': {
+          '0%': { backgroundColor: 'rgba(29,185,84,0.35)' },
+          '70%': { backgroundColor: 'rgba(29,185,84,0.18)' },
+          '100%': { backgroundColor: 'rgba(29,185,84,0)' },
+        },
       },
       animation: {
         shimmer: 'shimmer 2s infinite linear',
         'fade-slide-in': 'fade-slide-in 300ms ease-out',
         'pulse-glow': 'pulse-glow 2s ease-out infinite',
+        'reply-highlight': 'reply-highlight 2s ease-out',
       },
       backdropBlur: {
         player: '40px',

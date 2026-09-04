@@ -5,3 +5,4 @@ export * from './player.interface';
 export * from './track.interface';
 export * from './user.interface';
 export * from './group.interface';
+export * from './chat.interface';

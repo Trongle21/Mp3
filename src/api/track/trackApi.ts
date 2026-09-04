@@ -2,7 +2,7 @@ import type { IPaginatedResponse } from '@/types/api-response';
 import type {
   ITrack,
   ITrackResponse,
-  TrackQueryParams,
+  ITrackQueryParams,
 } from '@/interfaces/track.interface';
 
 import { TRACK_ENDPOINTS } from './track.endpoints';
@@ -20,7 +20,7 @@ export const trackApi = {
       },
     }),
 
-  list: (params?: TrackQueryParams) =>
+  list: (params?: ITrackQueryParams) =>
     AxiosService.get<IPaginatedResponse<ITrack>>(TRACK_ENDPOINTS.BASE, {
       params,
     }),
