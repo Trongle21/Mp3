@@ -4,9 +4,11 @@ import { useLoginForm } from '@/hooks';
 import Link from 'next/link';
 import { Controller } from 'react-hook-form';
 import { AppButton, AppInput } from '../ui';
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
 export function LoginForm() {
-  const { form, handleSubmit, isPending } = useLoginForm();
+  const { form, handleSubmit, isPending, showPassword, setShowPassword } =
+    useLoginForm();
 
   return (
     <form
@@ -32,7 +34,24 @@ export function LoginForm() {
         render={({ field, fieldState: { error } }) => (
           <AppInput
             placeholder="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
+            suffixIcon={
+              showPassword ? (
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <EyeIcon />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <EyeOffIcon />
+                </button>
+              )
+            }
             error={error?.message}
             {...field}
           />

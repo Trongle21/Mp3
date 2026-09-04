@@ -1,4 +1,5 @@
 export * from './ui';
+export * from './auth';
 export * from './tracks';
 export * from './shared';
 export * from './albums';

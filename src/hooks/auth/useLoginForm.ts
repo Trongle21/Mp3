@@ -6,6 +6,7 @@ import { useLoginMutation } from '@/services';
 import { loginSchema, type TLoginSchema } from '@/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -17,6 +18,8 @@ const defaultValues = {
 export const useLoginForm = () => {
   const router = useRouter();
   const { login } = useAuth();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<TLoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -51,5 +54,7 @@ export const useLoginForm = () => {
     form,
     handleSubmit: form.handleSubmit(onSubmit),
     isPending,
+    showPassword,
+    setShowPassword,
   };
 };

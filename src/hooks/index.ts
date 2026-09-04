@@ -7,6 +7,7 @@ export * from './groups';
 export * from './profile';
 export * from './search';
 export * from './admin';
+export * from './shared';
 
 // File
 export * from './useAuth';

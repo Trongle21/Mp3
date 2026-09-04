@@ -2,11 +2,20 @@
 
 import { AppButton, AppInput } from '@/components';
 import { useRegisterForm } from '@/hooks';
+import { EyeIcon, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { Controller } from 'react-hook-form';
 
 export function RegisterForm() {
-  const { form, handleSubmit, isPending } = useRegisterForm();
+  const {
+    form,
+    handleSubmit,
+    isPending,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+  } = useRegisterForm();
 
   return (
     <form
@@ -44,7 +53,26 @@ export function RegisterForm() {
           <AppInput
             placeholder="Password (min 8 characters)"
             error={error?.message}
-            type="password"
+            type={showPassword ? 'text' : 'password'}
+            suffixIcon={
+              showPassword ? (
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <EyeIcon />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <EyeOff />
+                </button>
+              )
+            }
             {...field}
           />
         )}
@@ -57,7 +85,26 @@ export function RegisterForm() {
           <AppInput
             placeholder="Password (min 8 characters)"
             error={error?.message}
-            type="password"
+            type={showConfirmPassword ? 'text' : 'password'}
+            suffixIcon={
+              showConfirmPassword ? (
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <EyeIcon />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <EyeOff />
+                </button>
+              )
+            }
             {...field}
           />
         )}

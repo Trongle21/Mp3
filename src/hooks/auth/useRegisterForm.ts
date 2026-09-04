@@ -1,12 +1,12 @@
 'use client';
 
 import { useAuth } from '@/hooks';
-import type { IRegisterBody, IRegisterResponse } from '@/interfaces';
+import type { IRegisterBody } from '@/interfaces';
 import { useRegisterMutation } from '@/services';
-import { type IApiResponse } from '@/types';
 import { registerSchema, type TRegisterSchema } from '@/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -21,6 +21,9 @@ export const useRegisterForm = () => {
   const router = useRouter();
 
   const { register: registerUser } = useAuth();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<TRegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -38,7 +41,7 @@ export const useRegisterForm = () => {
     mutate(
       { body },
       {
-        onSuccess: (data: IApiResponse<IRegisterResponse>) => {
+        onSuccess: data => {
           registerUser(data.data);
           router.push('/login');
           toast.success('Registration successful');
@@ -56,5 +59,9 @@ export const useRegisterForm = () => {
     handleSubmit: form.handleSubmit(onSubmit),
     onSubmit,
     isPending,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
   };
 };
