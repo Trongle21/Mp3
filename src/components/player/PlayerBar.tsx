@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { CoverThumb } from "@/components/shared/CoverThumb";
-import { usePlayer } from "@/hooks/usePlayer";
-import { usePlayerKeyboardShortcuts } from "@/hooks/usePlayerKeyboardShortcuts";
-import { ListMusic } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { PlayerControls } from "./PlayerControls";
-import { QueuePanel } from "./QueuePanel";
-import { RepeatModeButton } from "./RepeatModeButton";
-import { SeekBar } from "./SeekBar";
-import { ShuffleButton } from "./ShuffleButton";
-import { VolumeControl } from "./VolumeControl";
+import { CoverThumb } from '@/components/shared/CoverThumb';
+import { usePlayer } from '@/hooks/usePlayer';
+import { usePlayerKeyboardShortcuts } from '@/hooks';
+import { ListMusic } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { PlayerControls } from './PlayerControls';
+import { QueuePanel } from './QueuePanel';
+import { RepeatModeButton } from './RepeatModeButton';
+import { SeekBar } from './SeekBar';
+import { ShuffleButton } from './ShuffleButton';
+import { VolumeControl } from './VolumeControl';
 
 export function PlayerBar() {
   const { currentTrack, positionSec, seek } = usePlayer();
@@ -22,18 +22,21 @@ export function PlayerBar() {
 
   const pathname = usePathname();
 
-  if (pathname?.includes("/player")) {
+  if (pathname?.includes('/player')) {
     return null;
   }
 
   return (
     <>
-      <QueuePanel open={queueOpen} onClose={() => setQueueOpen(false)} />
+      <QueuePanel
+        open={queueOpen}
+        onClose={() => setQueueOpen(false)}
+      />
 
       {/* ── Mobile (< sm): stacked layout ── */}
       <div
         className="fixed inset-x-0 bottom-0 z-20 flex flex-col border-t border-border bg-bg-secondary lg:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {/* Seek bar spans full width */}
         <div className="px-4">
@@ -50,12 +53,20 @@ export function PlayerBar() {
           <div className="flex min-w-0 flex-1 items-center gap-3">
             {currentTrack ? (
               <>
-                <Link href="/player" className="shrink-0">
+                <Link
+                  href="/player"
+                  aria-label="Open full player"
+                  className="group relative shrink-0"
+                >
                   <CoverThumb
                     src={currentTrack.coverUrl}
                     title={currentTrack.title}
                     size={48}
-                    className="rounded"
+                    className="rounded transition-transform duration-200 group-hover:scale-105"
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded animate-pulse-glow"
                   />
                 </Link>
                 <div className="min-w-0">
@@ -89,19 +100,27 @@ export function PlayerBar() {
       {/* ── Desktop (lg+): centered bar ── */}
       <div
         className="glass-player fixed inset-x-0 bottom-0 z-20 hidden h-player items-center justify-center border-t border-border px-4 lg:flex"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <div className="flex w-[60%] items-center justify-between gap-4">
           {/* Track info */}
           <div className="flex w-1/4 min-w-0 items-center gap-3">
             {currentTrack ? (
               <>
-                <Link href="/player" className="shrink-0">
+                <Link
+                  href="/player"
+                  aria-label="Open full player"
+                  className="group relative shrink-0"
+                >
                   <CoverThumb
                     src={currentTrack.coverUrl}
                     title={currentTrack.title}
                     size={56}
-                    className="rounded"
+                    className="rounded transition-transform duration-200 group-hover:scale-105"
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded animate-pulse-glow"
                   />
                 </Link>
                 <div className="min-w-0">
@@ -137,12 +156,12 @@ export function PlayerBar() {
           {/* Volume + queue */}
           <div className="flex w-1/4 items-center justify-end gap-4">
             <button
-              onClick={() => setQueueOpen((v) => !v)}
+              onClick={() => setQueueOpen(v => !v)}
               aria-label="Toggle queue"
               className={
                 queueOpen
-                  ? "text-accent"
-                  : "text-text-secondary hover:text-text-primary"
+                  ? 'text-accent'
+                  : 'text-text-secondary hover:text-text-primary'
               }
             >
               <ListMusic className="h-4 w-4" />

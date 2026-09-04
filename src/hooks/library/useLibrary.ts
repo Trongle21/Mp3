@@ -1,9 +1,19 @@
 import { useAuth } from '@/hooks/useAuth';
+import type { ITrackQueryParams } from '@/interfaces';
 import { useDebounce } from '@/lib';
 import { useGetTrackListQuery } from '@/services';
 import { useMemo, useState } from 'react';
 
 export type SortOption = 'recent' | 'title_asc' | 'artist_asc';
+
+const sortToApiParam: Record<
+  SortOption,
+  NonNullable<ITrackQueryParams['sort']>
+> = {
+  recent: 'createdAt',
+  title_asc: 'title',
+  artist_asc: 'artist',
+};
 
 export const useLibrary = () => {
   const { user } = useAuth();
@@ -12,9 +22,9 @@ export const useLibrary = () => {
   const [sort, setSort] = useState<SortOption>('recent');
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data, isLoading } = useGetTrackListQuery({
+  const { data, isLoading, isFetching } = useGetTrackListQuery({
     search: debouncedSearch || undefined,
-    sort,
+    sort: sortToApiParam[sort],
   });
 
   const tracks = useMemo(() => data?.data ?? [], [data]);
@@ -28,6 +38,7 @@ export const useLibrary = () => {
     sort,
     setSort,
     isLoading,
+    isFetching,
     tracks,
     debouncedSearch,
   };

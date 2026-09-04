@@ -24,9 +24,9 @@ export interface TrackWithStream extends ITrack {
   coverUrl: string;
 }
 
-export interface TrackQueryParams {
+export interface ITrackQueryParams {
   search?: string;
-  sort?: 'recent' | 'title_asc' | 'artist_asc';
+  sort?: 'createdAt' | 'recent' | 'title' | 'artist';
   page?: number;
   limit?: number;
   /** Filter tracks by album ID (populates album info). */

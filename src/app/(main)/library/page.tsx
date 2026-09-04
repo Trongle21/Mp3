@@ -32,18 +32,18 @@ export default function LibraryPage() {
   return (
     <div className="animate-fade-slide-in pt-4">
       <div className="mb-4 flex items-center justify-between gap-3 sm:mb-6">
-        <h1 className="text-h2 sm:text-h1">Your Library</h1>
+        <h1 className="text-h2 sm:text-h1">The Music Library</h1>
         <Button onClick={() => setUploadOpen(true)}>
           <Upload className="mr-2 h-4 w-4" />
           Upload
         </Button>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center">
+      <div className="mb-4 flex gap-3 sm:mb-6 sm:items-center">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           <Input
-            placeholder="Search your library"
+            placeholder="Search"
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-9"
@@ -52,7 +52,7 @@ export default function LibraryPage() {
         <select
           value={sort}
           onChange={e => setSort(e.target.value as SortOption)}
-          className="h-11 shrink-0 rounded-md border border-border bg-bg-elevated px-3 text-body text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:w-auto"
+          className="h-11 shrink-0 cursor-pointer rounded-md border border-border bg-bg-elevated px-3 text-body text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:w-auto"
         >
           {Object.entries(sortLabels).map(([value, label]) => (
             <option

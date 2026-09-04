@@ -1,6 +1,6 @@
 import { trackApi } from '@/api';
 import { TRACK_QUERY_KEYS } from '@/constants';
-import type { ITrack, TrackQueryParams } from '@/interfaces';
+import type { ITrack, ITrackQueryParams } from '@/interfaces';
 import type { IApiResponse, IPaginatedResponse } from '@/types';
 import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 
@@ -12,7 +12,7 @@ interface IQueryOptions {
 }
 
 export const useGetTrackListQuery = (
-  params?: TrackQueryParams,
+  params?: ITrackQueryParams,
   options?: IQueryOptions
 ) => {
   const { configs } = options || {};

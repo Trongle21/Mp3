@@ -1,21 +1,20 @@
-"use client";
+'use client';
 
-import { AudioVisualizer } from "@/components/player/AudioVisualizer";
-import { PlayerControls } from "@/components/player/PlayerControls";
-import { RepeatModeButton } from "@/components/player/RepeatModeButton";
-import { SeekBar } from "@/components/player/SeekBar";
-import { ShuffleButton } from "@/components/player/ShuffleButton";
-import { VolumeControl } from "@/components/player/VolumeControl";
-import { CoverThumb } from "@/components/shared/CoverThumb";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { usePlayer } from "@/hooks/usePlayer";
-import { ChevronDown, Heart, Play } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
+import { AudioVisualizer } from '@/components/player/AudioVisualizer';
+import { PlayerControls } from '@/components/player/PlayerControls';
+import { RepeatModeButton } from '@/components/player/RepeatModeButton';
+import { SeekBar } from '@/components/player/SeekBar';
+import { ShuffleButton } from '@/components/player/ShuffleButton';
+import { VolumeControl } from '@/components/player/VolumeControl';
+import { CoverThumb } from '@/components/shared/CoverThumb';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { usePlayer } from '@/hooks/usePlayer';
+import { ChevronDown, Play } from 'lucide-react';
+import Link from 'next/link';
 
 export default function NowPlayingPage() {
   const { currentTrack, positionSec, seek, isPlaying } = usePlayer();
-  const [liked, setLiked] = useState(false);
+  // const [liked, setLiked] = useState(false);
 
   if (!currentTrack) {
     return (
@@ -62,15 +61,15 @@ export default function NowPlayingPage() {
               background: bgUrl
                 ? `radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)`
                 : `radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)`,
-              filter: "blur(20px)",
-              transform: "scale(1.1)",
+              filter: 'blur(20px)',
+              transform: 'scale(1.1)',
             }}
           />
 
           {/* Spinning vinyl disc */}
           <div
-            className={`relative h-[min(55vw,320px)] w-[min(55vw,320px)] shrink-0 sm:h-[min(45vh,500px)] sm:w-[min(45vh,500px)] ${isPlaying ? "animate-spin-slow" : ""}`}
-            style={{ animationDuration: "20s" }}
+            className={`relative h-[min(55vw,320px)] w-[min(55vw,320px)] shrink-0 sm:h-[min(45vh,500px)] sm:w-[min(45vh,500px)] ${isPlaying ? 'animate-spin-slow' : ''}`}
+            style={{ animationDuration: '20s' }}
           >
             {/* Vinyl base */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-2xl">
@@ -113,11 +112,9 @@ export default function NowPlayingPage() {
         </div>
 
         {/* Visualizer */}
-        <div className="mt-6 h-16 w-full max-w-lg">
+        <div className="mt-6 h-32 w-full max-w-2xl">
           <AudioVisualizer
-            barCount={48}
-            barColor="#1db954"
-            mirror={true}
+            barCount={64}
             className="h-full"
           />
         </div>
@@ -128,19 +125,19 @@ export default function NowPlayingPage() {
               {currentTrack.title}
             </h1>
             <p className="mt-1 truncate text-body text-text-secondary">
-              {currentTrack.artist}{" "}
-              {currentTrack.album ? `· ${currentTrack.album}` : ""}
+              {currentTrack.artist}{' '}
+              {currentTrack.album ? `· ${currentTrack.album}` : ''}
             </p>
           </div>
-          <button
-            onClick={() => setLiked((v) => !v)}
-            aria-label={liked ? "Unlike" : "Like"}
+          {/* <button
+            onClick={() => setLiked(v => !v)}
+            aria-label={liked ? 'Unlike' : 'Like'}
             className="ml-4 shrink-0 text-text-secondary hover:text-accent"
           >
             <Heart
-              className={liked ? "h-6 w-6 fill-accent text-accent" : "h-6 w-6"}
+              className={liked ? 'h-6 w-6 fill-accent text-accent' : 'h-6 w-6'}
             />
-          </button>
+          </button> */}
         </div>
 
         <div className="mt-6 w-full">
@@ -159,7 +156,10 @@ export default function NowPlayingPage() {
 
         {/* Volume control */}
         <div className="mt-8 flex items-center justify-center gap-3">
-          <VolumeControl size="lg" showLabel />
+          <VolumeControl
+            size="lg"
+            showLabel
+          />
         </div>
       </div>
     </div>

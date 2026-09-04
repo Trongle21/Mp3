@@ -76,7 +76,12 @@ export function Sidebar() {
               </div>
               <Link
                 href="/admin/users"
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-body font-medium text-text-secondary transition-colors hover:text-text-primary"
+                className={cn(
+                  'flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors',
+                  pathname?.startsWith('/admin/users')
+                    ? 'bg-bg-highlight text-text-primary'
+                    : 'text-text-secondary hover:text-text-primary'
+                )}
               >
                 <Users className="h-5 w-5" />
                 User

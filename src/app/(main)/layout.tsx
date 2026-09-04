@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { AuthGuard } from "@/components/auth/AuthGuard";
-import { Sidebar } from "@/components/shared/Sidebar";
-import { Header } from "@/components/shared/Header";
-import { PlayerBar } from "@/components/player/PlayerBar";
-import { PlayerInit } from "@/components/player/PlayerInit";
-import { ResumeBar } from "@/components/player/ResumeBar";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { AuthGuard } from '@/components/auth/AuthGuard';
+import { Sidebar } from '@/components/shared/Sidebar';
+import { Header } from '@/components/shared/Header';
+import { PlayerBar } from '@/components/player/PlayerBar';
+import { PlayerInit } from '@/components/player/PlayerInit';
+import { ResumeBar } from '@/components/player/ResumeBar';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export default function MainLayout({
   children,
@@ -15,17 +15,17 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isPlayerPage = pathname?.includes("/player");
+  const isPlayerPage = pathname?.includes('/player');
   return (
     <AuthGuard>
       <PlayerInit />
       <Sidebar />
       <div
         className={cn(
-          "min-h-screen pb-[calc(80px+env(safe-area-inset-bottom))] lg:ml-sidebar lg:pb-[calc(90px+env(safe-area-inset-bottom))]",
+          'min-h-screen pb-[calc(80px+env(safe-area-inset-bottom))] lg:ml-sidebar lg:pb-[calc(90px+env(safe-area-inset-bottom))]',
           {
-            "!pb-0 lg:!pb-0": isPlayerPage,
-          },
+            '!pb-0 lg:!pb-0': isPlayerPage,
+          }
         )}
       >
         <Header />

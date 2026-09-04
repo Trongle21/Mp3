@@ -12,3 +12,4 @@ export * from './shared';
 // File
 export * from './useAuth';
 export * from './usePlayer';
+export * from './usePlayerKeyboardShortcuts';
